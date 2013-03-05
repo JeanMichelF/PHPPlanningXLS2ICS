@@ -8,13 +8,16 @@
  */
 namespace JMF\PHPPlanningXLS2ICS\Data;
 
+use DateTime;
+
 class CellData
 {
+    /** @var int */
     public $typeOfDay;
-
+    /** @var DateTime */
     public $startingHour;
-
+    /** @var DateTime */
     public $finishingHour;
-
+    /** @var bool */
     public $isAllDayLong;
 }
