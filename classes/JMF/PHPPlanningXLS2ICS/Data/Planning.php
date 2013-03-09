@@ -11,5 +11,5 @@ namespace JMF\PHPPlanningXLS2ICS\Data;
 class Planning
 {
     /** @var PersonnalPlanning[] */
-    public $listOfPersonnalPlanning;
+    public $listOfPersonnalPlanning = array();
 }

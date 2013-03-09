@@ -14,5 +14,5 @@ class PersonnalPlanning
     public $name;
 
     /** @var DayData[] */
-    public $listOfDayData;
+    public $listOfDayData = array();
 }

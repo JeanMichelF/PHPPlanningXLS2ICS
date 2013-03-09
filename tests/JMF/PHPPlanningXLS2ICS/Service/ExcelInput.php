@@ -109,7 +109,7 @@ class ExcelInput extends atoum\test
     }
 
     /**
-     *
+     * @tags active
      */
     public function testGetNumberOfPersonnalPlannings() {
         //création de l'objet à tester
@@ -122,5 +122,15 @@ class ExcelInput extends atoum\test
         $this
             ->object($dataLoaded)
             ->isInstanceOf('\JMF\PHPPlanningXLS2ICS\Data\Planning');
+
+        $this
+            ->integer(count($dataLoaded->listOfPersonnalPlanning))
+            ->isEqualTo(9);
+
+        foreach ($dataLoaded->listOfPersonnalPlanning as $personnalPlanning) {
+            $this
+                ->integer(count($personnalPlanning->listOfDayData))
+                ->isEqualTo(21);
+        }
     }
 }

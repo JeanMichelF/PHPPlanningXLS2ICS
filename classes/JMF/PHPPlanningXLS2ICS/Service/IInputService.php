@@ -8,6 +8,8 @@
  */
 namespace JMF\PHPPlanningXLS2ICS\Service;
 
+use \JMF\PHPPlanningXLS2ICS\Data\Planning;
+
 interface IInputService
 {
     /**
@@ -22,7 +24,7 @@ interface IInputService
     public function closeFile();
 
     /**
-     * @return mixed
+     * @return Planning
      */
     public function extractData();
 }

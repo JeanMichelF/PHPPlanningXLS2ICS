@@ -13,11 +13,11 @@ use DateTime;
 class DayData
 {
     /** @var int */
-    public $typeOfDay;
+    public $typeOfDay = 0;
     /** @var DateTime */
     public $startingHour;
     /** @var DateTime */
     public $finishingHour;
     /** @var bool */
-    public $isAllDayLong;
+    public $isAllDayLong = false;
 }
