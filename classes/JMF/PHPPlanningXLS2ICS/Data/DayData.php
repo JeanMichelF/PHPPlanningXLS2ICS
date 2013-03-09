@@ -10,7 +10,7 @@ namespace JMF\PHPPlanningXLS2ICS\Data;
 
 use DateTime;
 
-class CellData
+class DayData
 {
     /** @var int */
     public $typeOfDay;

@@ -30,6 +30,8 @@ $loader->register();
 class ExcelInput extends atoum\test
 {
 
+    public $testFile = '/../../../fixtures/test.xls';
+
     public function testOpenFileKO() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
@@ -51,7 +53,8 @@ class ExcelInput extends atoum\test
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
 
-        $excelInputTest->openFile( __DIR__ . '/../../../fixtures/test.xlsx');
+
+        $excelInputTest->openFile(__DIR__ . $this->testFile);
 
         $this
             ->object($excelInputTest->getFile())
@@ -62,7 +65,7 @@ class ExcelInput extends atoum\test
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
 
-        $excelInputTest->openFile( __DIR__ . '/../../../fixtures/test.xlsx');
+        $excelInputTest->openFile(__DIR__ . $this->testFile);
 
         $this
             ->exception(
@@ -81,7 +84,7 @@ class ExcelInput extends atoum\test
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
 
-        $excelInputTest->openFile( __DIR__ . '/../../../fixtures/test.xlsx');
+        $excelInputTest->openFile(__DIR__ . $this->testFile);
 
         $this
             ->object($excelInputTest->getFile())

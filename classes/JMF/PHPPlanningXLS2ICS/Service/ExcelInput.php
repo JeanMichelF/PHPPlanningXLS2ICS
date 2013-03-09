@@ -14,7 +14,7 @@ use PHPExcel_IOFactory;
 /** Include PHPExcel */
 require_once __DIR__."/../../../../lib/PHPExcel/Classes/PHPExcel.php";
 
-class ExcelInput
+class ExcelInput implements \IInputService
 {
     /** @var null|PHPExcel */
     private $objPHPExcel = null;
@@ -39,4 +39,11 @@ class ExcelInput
         return $this->objPHPExcel;
     }
 
+    /**
+     * @return mixed
+     */
+    public function extractData()
+    {
+        // TODO: Implement extractData() method.
+    }
 }

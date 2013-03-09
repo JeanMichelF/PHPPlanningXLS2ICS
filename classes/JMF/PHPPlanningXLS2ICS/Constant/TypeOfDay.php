@@ -17,4 +17,5 @@ class TypeOfDay
     const CA = 5;
     const RJF = 6;
     const RH = 7;
+    const FERIE = 8;
 }
