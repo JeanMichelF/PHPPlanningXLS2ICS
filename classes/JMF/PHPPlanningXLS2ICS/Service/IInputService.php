@@ -6,6 +6,8 @@
  * Time: 15:52
  * To change this template use File | Settings | File Templates.
  */
+namespace JMF\PHPPlanningXLS2ICS\Service;
+
 interface IInputService
 {
     /**

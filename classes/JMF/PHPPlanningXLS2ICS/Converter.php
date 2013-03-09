@@ -8,13 +8,13 @@
  */
 namespace JMF\PHPPlanningXLS2ICS;
 
-use JMF\PHPPlanningXLS2ICS\Data\CellData;
+use JMF\PHPPlanningXLS2ICS\Data\DayData;
 use JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay;
 
 class Converter
 {
     public function toto() {
-        $toto = new CellData();
+        $toto = new DayData();
         $toto->typeOfDay = TypeOfDay::RTT;
 
         return $toto->typeOfDay;

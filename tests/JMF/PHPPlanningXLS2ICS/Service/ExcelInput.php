@@ -9,20 +9,19 @@
 
 namespace tests\JMF\PHPPlanningXLS2ICS\Service;
 
-//Inclusion de la classe à tester
-require_once __DIR__ . '/../../../../classes/JMF/PHPPlanningXLS2ICS/Service/ExcelInput.php';
-
 //Inclusion de atoum dans toutes les classes de tests
 require_once __DIR__ . '/../../../atoum/mageekguy.atoum.phar';
 
 use \mageekguy\atoum;
 use \JMF\PHPPlanningXLS2ICS\Service;
+use \JMF\PHPPlanningXLS2ICS\Data;
 
 //Class loader
-require_once __DIR__."/../../../../classes/SplClassLoader.php";
+require_once __DIR__."/../../../../SplClassLoader.php";
 
-$loader = new \SplClassLoader('JMF\PHPPlanningXLS2ICS', '');
+$loader = new \SplClassLoader('JMF', __DIR__.'/../../../../classes');
 $loader->register();
+
 
 /**
  * @namespace tests\
@@ -32,6 +31,9 @@ class ExcelInput extends atoum\test
 
     public $testFile = '/../../../fixtures/test.xls';
 
+    /**
+     *
+     */
     public function testOpenFileKO() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
@@ -49,6 +51,9 @@ class ExcelInput extends atoum\test
             ->isNull();
     }
 
+    /**
+     *
+     */
     public function testOpenFileOK() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
@@ -61,6 +66,9 @@ class ExcelInput extends atoum\test
             ->isInstanceOf('\PHPExcel');
     }
 
+    /**
+     *
+     */
     public function testDoubleOpenFile() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
@@ -80,6 +88,9 @@ class ExcelInput extends atoum\test
             ->isInstanceOf('\PHPExcel');
     }
 
+    /**
+     *
+     */
     public function testCloseFile() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
@@ -95,5 +106,21 @@ class ExcelInput extends atoum\test
         $this
             ->variable($excelInputTest->getFile())
             ->isNull();
+    }
+
+    /**
+     *
+     */
+    public function testGetNumberOfPersonnalPlannings() {
+        //création de l'objet à tester
+        $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
+
+        $excelInputTest->openFile(__DIR__ . $this->testFile);
+
+        $dataLoaded = $excelInputTest->extractData();
+
+        $this
+            ->object($dataLoaded)
+            ->isInstanceOf('\JMF\PHPPlanningXLS2ICS\Data\Planning');
     }
 }

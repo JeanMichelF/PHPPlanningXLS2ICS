@@ -10,11 +10,12 @@ namespace JMF\PHPPlanningXLS2ICS\Service;
 
 use PHPExcel;
 use PHPExcel_IOFactory;
+use \JMF\PHPPlanningXLS2ICS\Data;
 
 /** Include PHPExcel */
 require_once __DIR__."/../../../../lib/PHPExcel/Classes/PHPExcel.php";
 
-class ExcelInput implements \IInputService
+class ExcelInput implements IInputService
 {
     /** @var null|PHPExcel */
     private $objPHPExcel = null;
@@ -44,6 +45,6 @@ class ExcelInput implements \IInputService
      */
     public function extractData()
     {
-        // TODO: Implement extractData() method.
+        return new Data\Planning();
     }
 }
