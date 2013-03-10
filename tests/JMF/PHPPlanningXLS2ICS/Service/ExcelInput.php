@@ -238,5 +238,33 @@ class ExcelInput extends atoum\test
         $this
             ->dateTime($nextTuesdayJulie->finishingHour)
             ->hasDateAndTime('2013', '04', '30', '23', '00', '00');
+        $planningAnne = $dataLoaded->listOfPersonnalPlanning["Anne"];
+        $fridayAnne = $planningAnne->listOfDayData[4];
+        $this
+            ->integer($fridayAnne->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RTT);
+        $this
+            ->boolean($fridayAnne->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($fridayAnne->startingHour)
+            ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
+        $this
+            ->dateTime($fridayAnne->finishingHour)
+            ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
+        $planningOlivier = $dataLoaded->listOfPersonnalPlanning["Olivier"];
+        $wednesdayOlivier = $planningOlivier->listOfDayData[9];
+        $this
+            ->integer($wednesdayOlivier->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::FERIE);
+        $this
+            ->boolean($wednesdayOlivier->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($wednesdayOlivier->startingHour)
+            ->hasDateAndTime('2013', '05', '01', '00', '00', '00');
+        $this
+            ->dateTime($wednesdayOlivier->finishingHour)
+            ->hasDateAndTime('2013', '05', '01', '00', '00', '00');
     }
 }

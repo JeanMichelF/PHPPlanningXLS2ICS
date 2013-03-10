@@ -20,6 +20,7 @@ require_once __DIR__."/../../../../lib/PHPExcel/Classes/PHPExcel.php";
 
 class ExcelInput implements IInputService
 {
+    // @todo handle those datas with config in constructor
     const COLUMN_OF_NAMES = 0;
     const MAX_NUMBER_OF_WORKERS = 20;
     const FIRST_ROW_OF_WORKER = 2;
@@ -113,7 +114,7 @@ class ExcelInput implements IInputService
             }
         }
 
-        print_r($data);
+        //print_r($data);
 
         return $data;
     }
@@ -151,12 +152,33 @@ class ExcelInput implements IInputService
             case "CT":
                 $dayData = $this->setNotWorkingDay(TypeOfDay::CT, $day);
                 break;
+            case "RTT":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::RTT, $day);
+                break;
+            case "FERIE":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::FERIE, $day);
+                break;
+            /** Could happen... maybe */
+            case "CA":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::CA, $day);
+                break;
+            case "CP":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::CP, $day);
+                break;
+            case "RH":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::RH, $day);
+                break;
+            case "RJF":
+                $dayData = $this->setNotWorkingDay(TypeOfDay::RJF, $day);
+                break;
             default:
                 $matches = explode("-", $dayValue);
                 if (count($matches) > 1) {
                     $startTime = strtoupper($matches[0]);
                     $finishTime = strtoupper($matches[1]);
                     $dayData = $this->setWorkingDay($day, $startTime, $finishTime);
+                } else {
+                    // @todo log the error : fond a way to get day & worker name
                 }
                 break;
         }
