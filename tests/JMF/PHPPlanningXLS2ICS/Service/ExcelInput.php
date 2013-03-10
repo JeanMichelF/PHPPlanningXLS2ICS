@@ -143,10 +143,23 @@ class ExcelInput extends atoum\test
             ->isTrue();
         $this
             ->dateTime($mondayJulie->startingHour)
-            ->hasDate('2013', '03', '04');
+            ->hasDateAndTime('2013', '03', '04', '00', '00', '00');
         $this
             ->dateTime($mondayJulie->finishingHour)
-            ->hasDate('2013', '03', '04');
+            ->hasDateAndTime('2013', '03', '04', '00', '00', '00');
+        $tuesdayJulie = $planningJulie->listOfDayData[1];
+        $this
+            ->integer($tuesdayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($tuesdayJulie->isAllDayLong)
+            ->isFalse();
+        $this
+            ->dateTime($tuesdayJulie->startingHour)
+            ->hasDateAndTime('2013', '03', '05', '10', '00', '00');
+        $this
+            ->dateTime($tuesdayJulie->finishingHour)
+            ->hasDateAndTime('2013', '03', '05', '19', '00', '00');
         $wednesdayJulie = $planningJulie->listOfDayData[2];
         $this
             ->integer($wednesdayJulie->typeOfDay)
@@ -156,23 +169,23 @@ class ExcelInput extends atoum\test
             ->isTrue();
         $this
             ->dateTime($wednesdayJulie->startingHour)
-            ->hasDate('2013', '03', '06');
+            ->hasDateAndTime('2013', '03', '06', '00', '00', '00');
         $this
             ->dateTime($wednesdayJulie->finishingHour)
-            ->hasDate('2013', '03', '06');
-        $tuesdayJulie = $planningJulie->listOfDayData[3];
+            ->hasDateAndTime('2013', '03', '06', '00', '00', '00');
+        $thursdayJulie = $planningJulie->listOfDayData[3];
         $this
-            ->integer($tuesdayJulie->typeOfDay)
+            ->integer($thursdayJulie->typeOfDay)
             ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::CT);
         $this
-            ->boolean($tuesdayJulie->isAllDayLong)
+            ->boolean($thursdayJulie->isAllDayLong)
             ->isTrue();
         $this
-            ->dateTime($tuesdayJulie->startingHour)
-            ->hasDate('2013', '03', '07');
+            ->dateTime($thursdayJulie->startingHour)
+            ->hasDateAndTime('2013', '03', '07', '00', '00', '00');
         $this
-            ->dateTime($tuesdayJulie->finishingHour)
-            ->hasDate('2013', '03', '07');
+            ->dateTime($thursdayJulie->finishingHour)
+            ->hasDateAndTime('2013', '03', '07', '00', '00', '00');
         $fridayJulie = $planningJulie->listOfDayData[4];
         $this
             ->integer($fridayJulie->typeOfDay)
@@ -182,10 +195,10 @@ class ExcelInput extends atoum\test
             ->isTrue();
         $this
             ->dateTime($fridayJulie->startingHour)
-            ->hasDate('2013', '03', '08');
+            ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
         $this
             ->dateTime($fridayJulie->finishingHour)
-            ->hasDate('2013', '03', '08');
+            ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
         $saturdayJulie = $planningJulie->listOfDayData[5];
         $this
             ->integer($saturdayJulie->typeOfDay)
@@ -195,10 +208,10 @@ class ExcelInput extends atoum\test
             ->isTrue();
         $this
             ->dateTime($saturdayJulie->startingHour)
-            ->hasDate('2013', '03', '09');
+            ->hasDateAndTime('2013', '03', '09', '00', '00', '00');
         $this
             ->dateTime($saturdayJulie->finishingHour)
-            ->hasDate('2013', '03', '09');
+            ->hasDateAndTime('2013', '03', '09', '00', '00', '00');
         $sundayJulie = $planningJulie->listOfDayData[6];
         $this
             ->integer($sundayJulie->typeOfDay)
@@ -208,9 +221,22 @@ class ExcelInput extends atoum\test
             ->isTrue();
         $this
             ->dateTime($sundayJulie->startingHour)
-            ->hasDate('2013', '03', '10');
+            ->hasDate('2013', '03', '10', '00', '00', '00');
         $this
             ->dateTime($sundayJulie->finishingHour)
-            ->hasDate('2013', '03', '10');
+            ->hasDate('2013', '03', '10', '00', '00', '00');
+        $nextTuesdayJulie = $planningJulie->listOfDayData[8];
+        $this
+            ->integer($nextTuesdayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($nextTuesdayJulie->isAllDayLong)
+            ->isFalse();
+        $this
+            ->dateTime($nextTuesdayJulie->startingHour)
+            ->hasDateAndTime('2013', '04', '30', '16', '30', '00');
+        $this
+            ->dateTime($nextTuesdayJulie->finishingHour)
+            ->hasDateAndTime('2013', '04', '30', '23', '00', '00');
     }
 }

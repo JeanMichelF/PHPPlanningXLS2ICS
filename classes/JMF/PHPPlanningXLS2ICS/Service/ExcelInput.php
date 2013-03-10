@@ -113,7 +113,7 @@ class ExcelInput implements IInputService
             }
         }
 
-        //print_r($data);
+        print_r($data);
 
         return $data;
     }
@@ -146,28 +146,55 @@ class ExcelInput implements IInputService
         $dayData = new DayData();
         switch ($dayValue) {
             case "RH":
-                $dayData->typeOfDay = TypeOfDay::RH;
-                $this->setNotWorkingDay($dayData, $day);
+                $dayData = $this->setNotWorkingDay(TypeOfDay::RH, $day);
                 break;
             case "CT":
-                $dayData->typeOfDay = TypeOfDay::CT;
-                $this->setNotWorkingDay($dayData, $day);
+                $dayData = $this->setNotWorkingDay(TypeOfDay::CT, $day);
+                break;
+            default:
+                $matches = explode("-", $dayValue);
+                if (count($matches) > 1) {
+                    $startTime = strtoupper($matches[0]);
+                    $finishTime = strtoupper($matches[1]);
+                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime);
+                }
                 break;
         }
         return $dayData;
     }
 
     /**
-     * @param $dayDataObject    \JMF\PHPPlanningXLS2ICS\Data\DayData    Day to update
-     * @param $day              \DateTime                               Day of the sheet
+     * @param $typeOfDay    int         Day to update
+     * @param $day          \DateTime   Day of the sheet
+     * @return DayData
      */
-    private function setNotWorkingDay($dayDataObject, $day)
+    private function setNotWorkingDay($typeOfDay, $day)
     {
-        $dayDataObject->isAllDayLong = true;
-        $dayDataObject->startingHour = $day;
-        $dayDataObject->finishingHour = $day;
+        $dayData = new DayData();
+        $dayData->typeOfDay = $typeOfDay;
+        $dayData->isAllDayLong = true;
+        $dayData->startingHour = $day;
+        $dayData->finishingHour = $day;
+        return $dayData;
     }
 
+    /**
+     * @param $day          \DateTime   Day of the sheet
+     * @param $startTime    string      Starting hour
+     * @param $finishTime   string      Ending hour
+     * @return DayData
+     */
+    private function setWorkingDay($day, $startTime, $finishTime)
+    {
+        $dayData = new DayData();
+        $dayData->typeOfDay = TypeOfDay::WORK;
+        $dayData->isAllDayLong = false;
+        $start = clone $day;
+        $end = clone $day;
+        $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
+        $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
+        return $dayData;
+    }
     /**
      * @param $cellWeekValue    string
      * @return array
