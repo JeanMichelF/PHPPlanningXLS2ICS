@@ -86,9 +86,13 @@ class ExcelInput implements IInputService
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
             /** @todo find a better way to grab days */
-            $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-            $cellWeekValue = $cell->getValue();
-            $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
+            $sheetTitleValue = $sheet->getTitle();
+            $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
+            if (empty($daysOfTheSheet)) {
+                $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
+                $cellWeekValue = $cell->getValue();
+                $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
+            }
 
             for ($i = self::FIRST_ROW_OF_WORKER; $i < self::MAX_NUMBER_OF_WORKERS; $i++) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $i);
@@ -109,21 +113,23 @@ class ExcelInput implements IInputService
 
     private function getDaysOfWeek($cellWeekValue)
     {
-        $matches = explode(" ", $cellWeekValue);
-
         $daysOfTheSheet = array();
-        $month = $matches[count($matches) - 1];
-        $day = $matches[count($matches) - 2];
-        $reverseMonths = array_flip($this->months);
-        $monthOfLastDayOfWeek = $reverseMonths[$month];
-        /** @todo find a better way to handle year */
-        $daysOfTheSheet[self::NUMBERS_OF_DAYS_IN_A_WEEK - 1] =
-            mktime(0, 0, 0, $monthOfLastDayOfWeek + 1, $day, self::CURRENT_YEAR);
-        for ($i = 0; $i < 6; $i++) {
-            $daysOfTheSheet[$i] = strtotime(
-                '-' . self::NUMBERS_OF_DAYS_IN_A_WEEK + ($i + 1) . ' day',
-                $daysOfTheSheet[self::NUMBERS_OF_DAYS_IN_A_WEEK - 1]
-            );
+
+        $matches = explode(" ", $cellWeekValue);
+        if (count($matches) > 2) {
+            $month = $matches[count($matches) - 1];
+            $day = $matches[count($matches) - 2];
+            $reverseMonths = array_flip($this->months);
+            $monthOfLastDayOfWeek = $reverseMonths[$month];
+            /** @todo find a better way to handle year */
+            $daysOfTheSheet[self::NUMBERS_OF_DAYS_IN_A_WEEK - 1] =
+                mktime(0, 0, 0, $monthOfLastDayOfWeek + 1, $day, self::CURRENT_YEAR);
+            for ($i = 0; $i < 6; $i++) {
+                $daysOfTheSheet[$i] = strtotime(
+                    '-' . self::NUMBERS_OF_DAYS_IN_A_WEEK + ($i + 1) . ' day',
+                    $daysOfTheSheet[self::NUMBERS_OF_DAYS_IN_A_WEEK - 1]
+                );
+            }
         }
         return $daysOfTheSheet;
     }
