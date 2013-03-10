@@ -132,5 +132,85 @@ class ExcelInput extends atoum\test
                 ->integer(count($personnalPlanning->listOfDayData))
                 ->isEqualTo(21);
         }
+
+        $planningJulie = $dataLoaded->listOfPersonnalPlanning["Julie"];
+        $mondayJulie = $planningJulie->listOfDayData[0];
+        $this
+            ->integer($mondayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RH);
+        $this
+            ->boolean($mondayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($mondayJulie->startingHour)
+            ->hasDate('2013', '03', '04');
+        $this
+            ->dateTime($mondayJulie->finishingHour)
+            ->hasDate('2013', '03', '04');
+        $wednesdayJulie = $planningJulie->listOfDayData[2];
+        $this
+            ->integer($wednesdayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::CT);
+        $this
+            ->boolean($wednesdayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($wednesdayJulie->startingHour)
+            ->hasDate('2013', '03', '06');
+        $this
+            ->dateTime($wednesdayJulie->finishingHour)
+            ->hasDate('2013', '03', '06');
+        $tuesdayJulie = $planningJulie->listOfDayData[3];
+        $this
+            ->integer($tuesdayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::CT);
+        $this
+            ->boolean($tuesdayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($tuesdayJulie->startingHour)
+            ->hasDate('2013', '03', '07');
+        $this
+            ->dateTime($tuesdayJulie->finishingHour)
+            ->hasDate('2013', '03', '07');
+        $fridayJulie = $planningJulie->listOfDayData[4];
+        $this
+            ->integer($fridayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::CT);
+        $this
+            ->boolean($fridayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($fridayJulie->startingHour)
+            ->hasDate('2013', '03', '08');
+        $this
+            ->dateTime($fridayJulie->finishingHour)
+            ->hasDate('2013', '03', '08');
+        $saturdayJulie = $planningJulie->listOfDayData[5];
+        $this
+            ->integer($saturdayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RH);
+        $this
+            ->boolean($saturdayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($saturdayJulie->startingHour)
+            ->hasDate('2013', '03', '09');
+        $this
+            ->dateTime($saturdayJulie->finishingHour)
+            ->hasDate('2013', '03', '09');
+        $sundayJulie = $planningJulie->listOfDayData[6];
+        $this
+            ->integer($sundayJulie->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RH);
+        $this
+            ->boolean($sundayJulie->isAllDayLong)
+            ->isTrue();
+        $this
+            ->dateTime($sundayJulie->startingHour)
+            ->hasDate('2013', '03', '10');
+        $this
+            ->dateTime($sundayJulie->finishingHour)
+            ->hasDate('2013', '03', '10');
     }
 }
