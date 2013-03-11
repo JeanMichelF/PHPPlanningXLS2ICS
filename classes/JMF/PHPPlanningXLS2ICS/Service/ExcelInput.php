@@ -30,6 +30,8 @@ class ExcelInput implements IInputService
     const COLUMN_OF_WEEK = 0;
     const ROW_OF_WEEK = 1;
     const CURRENT_YEAR = 2013;
+    const COLOR_HOTELS = "FF0000";
+    const COLOR_DETACHES = "B81A9A";
 
 
     /** @var null|PHPExcel */
@@ -96,20 +98,23 @@ class ExcelInput implements IInputService
                 $cellWeekValue = $cell->getValue();
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
+            if (empty($daysOfTheSheet)) {
+                /** @todo handle an error there */
+            } else {
+                for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
+                    $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
+                    $cellNameValue = $cell->getValue();
+                    if (!is_null($cellNameValue)) {
+                        $personnalPlanning = new PersonnalPlanning();
+                        $personnalPlanning->name = $cellNameValue;
+                        $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
+                            $sheet,
+                            $rowOfWorker,
+                            $daysOfTheSheet
+                        );
 
-            for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
-                $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
-                $cellNameValue = $cell->getValue();
-                if (!is_null($cellNameValue)) {
-                    $personnalPlanning = new PersonnalPlanning();
-                    $personnalPlanning->name = $cellNameValue;
-                    $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
-                        $sheet,
-                        $rowOfWorker,
-                        $daysOfTheSheet
-                    );
-
-                    $this->smartAddPersonnalPlanningIntoData($personnalPlanning, $data);
+                        $this->smartAddPersonnalPlanningIntoData($personnalPlanning, $data);
+                    }
                 }
             }
         }
@@ -129,9 +134,11 @@ class ExcelInput implements IInputService
     {
         $listOfDayData = array();
         for ($day = 0; $day < self::NUMBERS_OF_DAYS_IN_A_WEEK; $day++) {
-            $cellDay = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES + $day + 1, $rowOfWorker);
+            $activeColumn = self::COLUMN_OF_NAMES + $day + 1;
+            $cellDay = $sheet->getCellByColumnAndRow($activeColumn, $rowOfWorker);
             $dayValue = $cellDay->getValue();
-            $dayData = $this->handleDayType($dayValue, $daysOfTheSheet[$day]);
+            $color = $sheet->getStyleByColumnAndRow($activeColumn, $rowOfWorker)->getFill()->getStartColor()->getRGB();
+            $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day]);
             $listOfDayData[] = $dayData;
         }
         return $listOfDayData;
@@ -139,10 +146,11 @@ class ExcelInput implements IInputService
 
     /**
      * @param $dayValue string      Written in input
+     * @param $color    string      Color of the cell
      * @param $day      \DateTime   Day of the sheet
      * @return \JMF\PHPPlanningXLS2ICS\Data\DayData
      */
-    private function handleDayType($dayValue, $day)
+    private function handleDayType($dayValue, $color, $day)
     {
         $dayData = new DayData();
         switch ($dayValue) {
@@ -176,9 +184,9 @@ class ExcelInput implements IInputService
                 if (count($matches) > 1) {
                     $startTime = strtoupper($matches[0]);
                     $finishTime = strtoupper($matches[1]);
-                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime);
+                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color);
                 } else {
-                    // @todo log the error : fond a way to get day & worker name
+                    // @todo log the error : find a way to get day & worker name
                 }
                 break;
         }
@@ -197,6 +205,8 @@ class ExcelInput implements IInputService
         $dayData->isAllDayLong = true;
         $dayData->startingHour = $day;
         $dayData->finishingHour = $day;
+        $dayData->isHotels = false;
+        $dayData->isDetaches = false;
         return $dayData;
     }
 
@@ -204,9 +214,10 @@ class ExcelInput implements IInputService
      * @param $day          \DateTime   Day of the sheet
      * @param $startTime    string      Starting hour
      * @param $finishTime   string      Ending hour
+     * @param $color        string      Color of the cell
      * @return DayData
      */
-    private function setWorkingDay($day, $startTime, $finishTime)
+    private function setWorkingDay($day, $startTime, $finishTime, $color)
     {
         $dayData = new DayData();
         $dayData->typeOfDay = TypeOfDay::WORK;
@@ -215,6 +226,13 @@ class ExcelInput implements IInputService
         $end = clone $day;
         $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
         $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
+        /** @todo handle an array of colors (maybe) */
+        if (self::COLOR_HOTELS == $color) {
+            $dayData->isHotels = true;
+        }
+        if (self::COLOR_DETACHES == $color) {
+            $dayData->isDetaches = true;
+        }
         return $dayData;
     }
     /**

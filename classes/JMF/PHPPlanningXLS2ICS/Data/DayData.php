@@ -20,4 +20,8 @@ class DayData
     public $finishingHour;
     /** @var bool */
     public $isAllDayLong = false;
+    /** @var bool */
+    public $isHotels = false;
+    /** @var bool */
+    public $isDetaches = false;
 }
