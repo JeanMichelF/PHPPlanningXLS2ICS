@@ -9,7 +9,7 @@
 
 namespace tests\JMF\PHPPlanningXLS2ICS\Service;
 
-//Inclusion de atoum dans toutes les classes de tests
+//Inclusion de atoum
 require_once __DIR__ . '/../../../atoum/mageekguy.atoum.phar';
 
 use \mageekguy\atoum;
@@ -57,7 +57,6 @@ class ExcelInput extends atoum\test
     public function testOpenFileOK() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
-
 
         $excelInputTest->openFile(__DIR__ . $this->testFile);
 
@@ -111,7 +110,7 @@ class ExcelInput extends atoum\test
     /**
      * @tags active
      */
-    public function testGetNumberOfPersonnalPlannings() {
+    public function testGetPersonnalPlannings() {
         //création de l'objet à tester
         $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
 

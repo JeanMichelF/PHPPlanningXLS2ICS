@@ -99,7 +99,10 @@ class ExcelInput implements IInputService
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
-                /** @todo handle an error there */
+                ArrayLogging::getInstance()->add(
+                    "error",
+                    "Impossible de trouver la semaine correspondant à la feuille " . $sheetTitleValue
+                );
             } else {
                 for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
@@ -110,7 +113,8 @@ class ExcelInput implements IInputService
                         $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
                             $sheet,
                             $rowOfWorker,
-                            $daysOfTheSheet
+                            $daysOfTheSheet,
+                            $cellNameValue
                         );
 
                         $this->smartAddPersonnalPlanningIntoData($personnalPlanning, $data);
@@ -120,6 +124,7 @@ class ExcelInput implements IInputService
         }
 
         //print_r($data);
+        //echo ArrayLogging::getInstance()->displayLog();
 
         return $data;
     }
@@ -128,9 +133,10 @@ class ExcelInput implements IInputService
      * @param $sheet            \PHPExcel_Worksheet
      * @param $rowOfWorker      int
      * @param $daysOfTheSheet   array
+     * @param $name             string              Only for logging purpose
      * @return array
      */
-    private function extractDaysOfSheetData($sheet, $rowOfWorker, $daysOfTheSheet)
+    private function extractDaysOfSheetData($sheet, $rowOfWorker, $daysOfTheSheet, $name)
     {
         $listOfDayData = array();
         for ($day = 0; $day < self::NUMBERS_OF_DAYS_IN_A_WEEK; $day++) {
@@ -138,8 +144,10 @@ class ExcelInput implements IInputService
             $cellDay = $sheet->getCellByColumnAndRow($activeColumn, $rowOfWorker);
             $dayValue = $cellDay->getValue();
             $color = $sheet->getStyleByColumnAndRow($activeColumn, $rowOfWorker)->getFill()->getStartColor()->getRGB();
-            $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day]);
-            $listOfDayData[] = $dayData;
+            $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day], $name);
+            if (!is_null($dayData)) {
+                $listOfDayData[] = $dayData;
+            }
         }
         return $listOfDayData;
     }
@@ -148,9 +156,10 @@ class ExcelInput implements IInputService
      * @param $dayValue string      Written in input
      * @param $color    string      Color of the cell
      * @param $day      \DateTime   Day of the sheet
+     * @param $name     string      Only for logging purpose
      * @return \JMF\PHPPlanningXLS2ICS\Data\DayData
      */
-    private function handleDayType($dayValue, $color, $day)
+    private function handleDayType($dayValue, $color, $day, $name)
     {
         $dayData = new DayData();
         switch ($dayValue) {
@@ -186,7 +195,14 @@ class ExcelInput implements IInputService
                     $finishTime = strtoupper($matches[1]);
                     $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color);
                 } else {
-                    // @todo log the error : find a way to get day & worker name
+                    $dayData = null;
+                    ArrayLogging::getInstance()->add(
+                        "error",
+                        "Impossible de trouver l'activité de " .
+                            $name .
+                            " pour le " .
+                            $day->format("d/m/Y")
+                    );
                 }
                 break;
         }
@@ -248,18 +264,20 @@ class ExcelInput implements IInputService
             $month = $matches[count($matches) - 1];
             $day = $matches[count($matches) - 2];
             $reverseMonths = array_flip($this->months);
-            $monthOfLastDayOfWeek = $reverseMonths[$month];
-            /** @todo find a better way to handle year */
-            $referenceDay =
-                new \DateTime(
-                    self::CURRENT_YEAR . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
-                    , new \DateTimeZone('Europe/Paris')
-                );
-            for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
-                $date = clone $referenceDay;
-                $toSubstract = self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1);
-                $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
-                $daysOfTheSheet[$i] = $date;
+            if (array_key_exists($month, $reverseMonths)) {
+                $monthOfLastDayOfWeek = $reverseMonths[$month];
+                /** @todo find a better way to handle year */
+                $referenceDay =
+                    new \DateTime(
+                        self::CURRENT_YEAR . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
+                        , new \DateTimeZone('Europe/Paris')
+                    );
+                for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
+                    $date = clone $referenceDay;
+                    $toSubstract = self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1);
+                    $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
+                    $daysOfTheSheet[$i] = $date;
+                }
             }
         }
         return $daysOfTheSheet;
