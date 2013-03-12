@@ -32,7 +32,7 @@ class ExcelInput extends atoum\test
     public $testFile = '/../../../fixtures/test.xls';
 
     /**
-     *
+     * @tags active
      */
     public function testOpenFileKO() {
         //création de l'objet à tester
@@ -49,6 +49,11 @@ class ExcelInput extends atoum\test
         $this
             ->variable($excelInputTest->getFile())
             ->isNull();
+
+        $this
+            ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog())
+            ->contains("error")
+            ->contains("Impossible d'ouvrir le fichier");
     }
 
     /**
@@ -108,7 +113,7 @@ class ExcelInput extends atoum\test
     }
 
     /**
-     * @tags active
+     *
      */
     public function testGetPersonnalPlannings() {
         //création de l'objet à tester

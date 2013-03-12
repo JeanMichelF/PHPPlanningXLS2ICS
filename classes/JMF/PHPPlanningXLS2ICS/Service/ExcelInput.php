@@ -60,7 +60,15 @@ class ExcelInput implements IInputService
      */
     public function openFile($path = "") {
         if (is_null($this->objPHPExcel)) {
-            $this->objPHPExcel = PHPExcel_IOFactory::load($path);
+            try {
+                $this->objPHPExcel = PHPExcel_IOFactory::load($path);
+            } catch(\PHPExcel_Reader_Exception $e) {
+                ArrayLogging::getInstance()->add(
+                    "error",
+                    "Impossible d'ouvrir le fichier " . $path . " : " . $e->getMessage()
+                );
+                throw $e;
+            }
         } else {
             throw new \Exception("Currently handling one file, close it first");
         }
@@ -122,9 +130,6 @@ class ExcelInput implements IInputService
                 }
             }
         }
-
-        //print_r($data);
-        //echo ArrayLogging::getInstance()->displayLog();
 
         return $data;
     }
