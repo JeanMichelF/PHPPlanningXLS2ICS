@@ -166,7 +166,6 @@ class ExcelInput implements IInputService
      */
     private function handleDayType($dayValue, $color, $day, $name)
     {
-        $dayData = new DayData();
         switch ($dayValue) {
             case "RH":
                 $dayData = $this->setNotWorkingDay(TypeOfDay::RH, $day);

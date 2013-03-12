@@ -8,7 +8,29 @@
  */
 namespace JMF\PHPPlanningXLS2ICS\Service;
 
-class ICSOutput
+use \JMF\PHPPlanningXLS2ICS\Data\PersonnalPlanning;
+
+class ICSOutput implements IOutputService
 {
 
+    /**
+     * @param PersonnalPlanning $planning
+     * @return string
+     */
+    public function exportPersonnalPlanning(PersonnalPlanning $planning)
+    {
+        return 'planning' . $planning->name . '.ics';
+    }
+
+    private function writeFileHeader() {
+
+    }
+
+    private function writeFileFooter() {
+
+    }
+
+    private function writeEvent() {
+
+    }
 }

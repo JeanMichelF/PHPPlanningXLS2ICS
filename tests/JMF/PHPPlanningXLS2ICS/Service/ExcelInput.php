@@ -32,7 +32,7 @@ class ExcelInput extends atoum\test
     public $testFile = '/../../../fixtures/test.xls';
 
     /**
-     * @tags active
+     *
      */
     public function testOpenFileKO() {
         //création de l'objet à tester
