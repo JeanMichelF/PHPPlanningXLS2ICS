@@ -35,7 +35,7 @@ class ICSOutput extends atoum\test
     {
         //création de l'objet à tester
         $planning = new \JMF\PHPPlanningXLS2ICS\Data\PersonnalPlanning();
-        $planning->name = "Planning 115 Céline";
+        $planning->name = "Céline";
         $dayData = new \JMF\PHPPlanningXLS2ICS\Data\DayData();
         $dayData->typeOfDay = \JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RH;
         $dayData->isAllDayLong = true;
