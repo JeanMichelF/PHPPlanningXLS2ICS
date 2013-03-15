@@ -36,6 +36,8 @@ class ExcelInput implements IInputService
 
     /** @var null|PHPExcel */
     private $objPHPExcel = null;
+    /** @var ILoggingService */
+    private $loggingService;
 
     private $months = array(
         "JANVIER",
@@ -52,10 +54,22 @@ class ExcelInput implements IInputService
         "DECEMBRE"
     );
 
+    /**
+     * @param null $loggingService
+     */
+    function __construct($loggingService = null)
+    {
+        if (is_null($loggingService)) {
+            $this->loggingService = ArrayLogging::getInstance();
+        } else {
+            $this->loggingService = $loggingService;
+        }
+    }
 
     /**
      * @param string $path
      * @return mixed|void
+     * @throws \PHPExcel_Reader_Exception
      * @throws \Exception
      */
     public function openFile($path = "") {
@@ -63,7 +77,7 @@ class ExcelInput implements IInputService
             try {
                 $this->objPHPExcel = PHPExcel_IOFactory::load($path);
             } catch(\PHPExcel_Reader_Exception $e) {
-                ArrayLogging::getInstance()->add(
+                $this->loggingService->add(
                     "error",
                     "Impossible d'ouvrir le fichier " . $path . " : " . $e->getMessage()
                 );
@@ -107,7 +121,7 @@ class ExcelInput implements IInputService
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
-                ArrayLogging::getInstance()->add(
+                $this->loggingService->add(
                     "error",
                     "Impossible de trouver la semaine correspondant à la feuille " . $sheetTitleValue
                 );
@@ -200,7 +214,7 @@ class ExcelInput implements IInputService
                     $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color);
                 } else {
                     $dayData = null;
-                    ArrayLogging::getInstance()->add(
+                    $this->loggingService->add(
                         "error",
                         "Impossible de trouver l'activité de " .
                             $name .

@@ -29,16 +29,46 @@ $loader->register();
  */
 class Converter extends atoum\test
 {
+    public $testFile = '/../../fixtures/test.xls';
 
-    public function testToto() {
+    /**
+     * @tags active
+     */
+    public function testConverterOk() {
         //création de l'objet à tester
-        $helloToTest = new PHPPlanningXLS2ICS\Converter();
+        $converterTest = new PHPPlanningXLS2ICS\Converter();
 
-        $this
-            //le retour de la méthode doit être un entier
-            ->integer($helloToTest->toto())
-            //la valeur doit être égale à 2 !
-            ->isEqualTo(2);
+        $results = $converterTest->convertFile(__DIR__ . $this->testFile);
+
+        echo $converterTest->showLogs();
+        $this->array($results)
+            ->hasSize(9)
+            ->contains('planningJulie.ics')
+            ->contains('planningXavier.ics')
+            ->contains('planningNoelie.ics')
+            ->contains('planningOlivier.ics')
+            ->contains('planningAline.ics')
+            ->contains('planningAnne.ics')
+            ->contains('planningClaire.ics')
+            ->contains('planningCeline.ics')
+            ->contains('planningMarie.ics');
     }
 
+    /**
+     * @tags active
+     */
+    public function testConverterKo() {
+        //création de l'objet à tester
+        $converterTest = new PHPPlanningXLS2ICS\Converter();
+
+        $this
+            ->exception(
+            function() use($converterTest) {
+                // ce code lève une exception: throw new \Exception;
+                $converterTest->convertFile('badfile');
+            }
+        );
+
+        echo $converterTest->showLogs();
+    }
 }

@@ -39,6 +39,20 @@ class ICSOutput implements IOutputService
     const EVENT_DESCRIPTION_HOTELS = " : attention, journée HOTELS";
     const EVENT_DESCRIPTION_DETACHES = " : attention, journée DETACHES";
 
+    /** @var ILoggingService */
+    private $loggingService;
+
+    /**
+     * @param null $loggingService
+     */
+    function __construct($loggingService = null)
+    {
+        if (is_null($loggingService)) {
+            $this->loggingService = ArrayLogging::getInstance();
+        } else {
+            $this->loggingService = $loggingService;
+        }
+    }
 
     /**
      * @param PersonnalPlanning $planning
@@ -128,7 +142,7 @@ class ICSOutput implements IOutputService
      * @param string $charset
      * @return string
      */
-    public function wd_remove_accents($str, $charset='utf-8')
+    private function wd_remove_accents($str, $charset='utf-8')
     {
         $str = htmlentities($str, ENT_NOQUOTES, $charset);
 
