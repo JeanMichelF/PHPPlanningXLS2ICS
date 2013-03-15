@@ -32,7 +32,7 @@ class Converter extends atoum\test
     public $testFile = '/../../fixtures/test.xls';
 
     /**
-     * @tags active
+     *
      */
     public function testConverterOk() {
         //création de l'objet à tester
@@ -55,7 +55,7 @@ class Converter extends atoum\test
     }
 
     /**
-     * @tags active
+     *
      */
     public function testConverterKo() {
         //création de l'objet à tester

@@ -41,8 +41,8 @@ class ICSOutput extends atoum\test
         $dayData->isAllDayLong = true;
         $dayData->isDetaches = false;
         $dayData->isHotels = false;
-        $dayData->startingHour = new \DateTime("2013-03-08");
-        $dayData->finishingHour = new \DateTime("2013-03-08");
+        $dayData->startingHour = new \DateTime("2013-03-08", new \DateTimeZone('Europe/Paris'));
+        $dayData->finishingHour = new \DateTime("2013-03-08", new \DateTimeZone('Europe/Paris'));
         $planning->listOfDayData[] = $dayData;
         $ICSOutputTest = new \JMF\PHPPlanningXLS2ICS\Service\ICSOutput();
 

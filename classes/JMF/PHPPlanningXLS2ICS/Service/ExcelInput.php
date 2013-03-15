@@ -113,11 +113,11 @@ class ExcelInput implements IInputService
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
             /** @todo find a better way to grab days */
-            $sheetTitleValue = $sheet->getTitle();
+            $sheetTitleValue = trim($sheet->getTitle());
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                $cellWeekValue = $cell->getValue();
+                $cellWeekValue = trim($cell->getValue());
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
@@ -128,8 +128,8 @@ class ExcelInput implements IInputService
             } else {
                 for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
-                    $cellNameValue = $cell->getValue();
-                    if (!is_null($cellNameValue)) {
+                    $cellNameValue = trim($cell->getValue());
+                    if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue)) {
                         $personnalPlanning = new PersonnalPlanning();
                         $personnalPlanning->name = $cellNameValue;
                         $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
@@ -161,7 +161,7 @@ class ExcelInput implements IInputService
         for ($day = 0; $day < self::NUMBERS_OF_DAYS_IN_A_WEEK; $day++) {
             $activeColumn = self::COLUMN_OF_NAMES + $day + 1;
             $cellDay = $sheet->getCellByColumnAndRow($activeColumn, $rowOfWorker);
-            $dayValue = $cellDay->getValue();
+            $dayValue = trim($cellDay->getValue());
             $color = $sheet->getStyleByColumnAndRow($activeColumn, $rowOfWorker)->getFill()->getStartColor()->getRGB();
             $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day], $name);
             if (!is_null($dayData)) {

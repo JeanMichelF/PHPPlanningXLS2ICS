@@ -102,22 +102,24 @@ class ICSOutput implements IOutputService
      */
     private function writeEvent(DayData $dayData)
     {
+        $dateTimeStart = clone $dayData->startingHour;
+        $dateTimeFinish = clone $dayData->finishingHour;
         if ($dayData->isAllDayLong) {
-            $dateDebut = ';VALUE=DATE:' . $dayData->startingHour->format("Ymd");
-            $dateFin = ';VALUE=DATE:' . $dayData->finishingHour->add(new \DateInterval("P1D"))->format("Ymd");
+            $dateTimeStart->setTimezone(new \DateTimeZone('Europe/Paris'));
+            $dateTimeFinish->setTimezone(new \DateTimeZone('Europe/Paris'));
+            $startDate = ';VALUE=DATE:' . $dateTimeStart->format("Ymd");
+            $endDate = ';VALUE=DATE:' . $dateTimeFinish->add(new \DateInterval("P1D"))->format("Ymd");
             $eventTransp = "TRANSPARENT";
         } else {
-            $dayData->startingHour
-                ->setTimezone(new \DateTimeZone('UTC'));
-            $dateDebut = ':' . $dayData->startingHour->format('Ymd'). 'T'. $dayData->startingHour->format('His') . 'Z';
-            $dayData->finishingHour
-                ->setTimezone(new \DateTimeZone('UTC'));
-            $dateFin = ':' . $dayData->finishingHour->format('Ymd'). 'T'. $dayData->finishingHour->format('His') . 'Z';
+            $dateTimeStart->setTimezone(new \DateTimeZone('UTC'));
+            $dateTimeFinish->setTimezone(new \DateTimeZone('UTC'));
+            $startDate = ':' . $dateTimeStart->format('Ymd'). 'T'. $dateTimeStart->format('His') . 'Z';
+            $endDate = ':' . $dateTimeFinish->format('Ymd'). 'T'. $dateTimeFinish->format('His') . 'Z';
             $eventTransp = "OPAQUE";
         }
         $event = "BEGIN:VEVENT" . PHP_EOL .
-        "DTSTART" . $dateDebut . PHP_EOL .
-        "DTEND" . $dateFin . PHP_EOL .
+        "DTSTART" . $startDate . PHP_EOL .
+        "DTEND" . $endDate . PHP_EOL .
         "DTSTAMP:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
         "UID:" . md5(uniqid(mt_rand(), true)) . '@PHPPlanningXLS2ICS.fr' . PHP_EOL .
         "CREATED:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
