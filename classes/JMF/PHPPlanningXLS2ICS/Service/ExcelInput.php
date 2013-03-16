@@ -211,15 +211,15 @@ class ExcelInput implements IInputService
                 if (count($matches) > 1) {
                     $startTime = strtoupper($matches[0]);
                     $finishTime = strtoupper($matches[1]);
-                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color);
+                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color, $name);
                 } else {
                     $dayData = null;
                     $this->loggingService->add(
                         "error",
                         "Impossible de trouver l'activité de " .
-                            $name .
-                            " pour le " .
-                            $day->format("d/m/Y")
+                        $name .
+                        " pour le " .
+                        $day->format("d/m/Y")
                     );
                 }
                 break;
@@ -249,17 +249,30 @@ class ExcelInput implements IInputService
      * @param $startTime    string      Starting hour
      * @param $finishTime   string      Ending hour
      * @param $color        string      Color of the cell
+     * @param $name         string      Only for logging purpose
      * @return DayData
      */
-    private function setWorkingDay($day, $startTime, $finishTime, $color)
+    private function setWorkingDay($day, $startTime, $finishTime, $color, $name)
     {
         $dayData = new DayData();
         $dayData->typeOfDay = TypeOfDay::WORK;
         $dayData->isAllDayLong = false;
         $start = clone $day;
         $end = clone $day;
-        $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
-        $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
+        try {
+            $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
+            $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
+        } catch (\Exception $e) {
+            $this->loggingService->add(
+                "error",
+                "Impossible de trouver les heures correctes de travail de " .
+                $name .
+                " pour le " .
+                $day->format("d/m/Y") .
+                " : " .
+                $e->getMessage()
+            );
+        }
         /** @todo handle an array of colors (maybe) */
         if (self::COLOR_HOTELS == $color) {
             $dayData->isHotels = true;
@@ -293,7 +306,20 @@ class ExcelInput implements IInputService
                 for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
                     $date = clone $referenceDay;
                     $toSubstract = self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1);
-                    $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
+                    try {
+                        $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
+                    } catch (\Exception $e) {
+                        $this->loggingService->add(
+                            "error",
+                            "Impossible de trouver le jour correspondant à " .
+                            $date->format("d/m/Y") .
+                            " - " .
+                            self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1) .
+                            " : " .
+                            $e->getMessage()
+                        );
+                        return null;
+                    }
                     $daysOfTheSheet[$i] = $date;
                 }
             }

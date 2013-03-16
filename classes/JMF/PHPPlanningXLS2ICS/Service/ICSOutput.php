@@ -104,19 +104,35 @@ class ICSOutput implements IOutputService
     {
         $dateTimeStart = clone $dayData->startingHour;
         $dateTimeFinish = clone $dayData->finishingHour;
-        if ($dayData->isAllDayLong) {
-            $dateTimeStart->setTimezone(new \DateTimeZone('Europe/Paris'));
-            $dateTimeFinish->setTimezone(new \DateTimeZone('Europe/Paris'));
-            $startDate = ';VALUE=DATE:' . $dateTimeStart->format("Ymd");
-            $endDate = ';VALUE=DATE:' . $dateTimeFinish->add(new \DateInterval("P1D"))->format("Ymd");
-            $eventTransp = "TRANSPARENT";
-        } else {
-            $dateTimeStart->setTimezone(new \DateTimeZone('UTC'));
-            $dateTimeFinish->setTimezone(new \DateTimeZone('UTC'));
-            $startDate = ':' . $dateTimeStart->format('Ymd'). 'T'. $dateTimeStart->format('His') . 'Z';
-            $endDate = ':' . $dateTimeFinish->format('Ymd'). 'T'. $dateTimeFinish->format('His') . 'Z';
-            $eventTransp = "OPAQUE";
+        try {
+            if ($dayData->isAllDayLong) {
+                $dateTimeStart->setTimezone(new \DateTimeZone('Europe/Paris'));
+                $dateTimeFinish->setTimezone(new \DateTimeZone('Europe/Paris'));
+                $startDate = ';VALUE=DATE:' . $dateTimeStart->format("Ymd");
+                $endDate = ';VALUE=DATE:' . $dateTimeFinish->add(new \DateInterval("P1D"))->format("Ymd");
+                $eventTransp = "TRANSPARENT";
+            } else {
+                $dateTimeStart->setTimezone(new \DateTimeZone('UTC'));
+                $dateTimeFinish->setTimezone(new \DateTimeZone('UTC'));
+                $startDate = ':' . $dateTimeStart->format('Ymd'). 'T'. $dateTimeStart->format('His') . 'Z';
+                $endDate = ':' . $dateTimeFinish->format('Ymd'). 'T'. $dateTimeFinish->format('His') . 'Z';
+                $eventTransp = "OPAQUE";
+            }
+        } catch (\Exception $e) {
+            $this->loggingService->add(
+                "error",
+                "Error lors de l'export du " .
+                $dateTimeStart->format("d/m/Y") .
+                " au " .
+                $dateTimeFinish->format("d/m/Y") .
+                " (" .
+                constant('self::EVENT_SUMMARY_' . $dayData->typeOfDay) .
+                ") : " .
+                $e->getMessage()
+            );
+            return "";
         }
+
         $event = "BEGIN:VEVENT" . PHP_EOL .
         "DTSTART" . $startDate . PHP_EOL .
         "DTEND" . $endDate . PHP_EOL .
