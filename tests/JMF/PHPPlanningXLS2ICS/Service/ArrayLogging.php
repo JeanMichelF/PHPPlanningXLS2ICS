@@ -38,5 +38,10 @@ class ArrayLogging extends atoum\test
             ->contains("error")
             ->contains("test un")
             ->contains("test deux");
+
+        \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->pruneLog();
+        $this
+            ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog())
+            ->isEmpty();
     }
 }

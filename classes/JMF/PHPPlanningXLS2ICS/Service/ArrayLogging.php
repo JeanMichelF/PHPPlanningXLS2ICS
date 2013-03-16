@@ -53,4 +53,10 @@ class ArrayLogging implements ILoggingService
     {
         return implode(PHP_EOL, $this->logData);
     }
+
+
+    public function pruneLog()
+    {
+        ArrayLogging::getInstance()->logData = array();
+    }
 }

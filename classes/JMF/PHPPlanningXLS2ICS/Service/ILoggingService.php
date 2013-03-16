@@ -20,4 +20,9 @@ interface ILoggingService
      * @return string
      */
     public function displayLog();
+
+    /**
+     * @return mixed
+     */
+    public function pruneLog();
 }
