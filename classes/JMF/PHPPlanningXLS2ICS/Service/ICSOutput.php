@@ -56,13 +56,14 @@ class ICSOutput implements IOutputService
 
     /**
      * @param PersonnalPlanning $planning
+     * @param string            $path
      * @return string
      */
-    public function exportPersonnalPlanning(PersonnalPlanning $planning)
+    public function exportPersonnalPlanning(PersonnalPlanning $planning, $path = "")
     {
         $name = $planning->name;
         $filename = 'planning' . $this->wd_remove_accents($name) . '.ics';
-        $file = new \SplFileObject($filename, 'w');
+        $file = new \SplFileObject($path . $filename, 'w');
         $file->fwrite($this->writeFileHeader($name));
         foreach ($planning->listOfDayData as $dayData) {
             $file->fwrite($this->writeEvent($dayData));
@@ -121,7 +122,7 @@ class ICSOutput implements IOutputService
         } catch (\Exception $e) {
             $this->loggingService->add(
                 "error",
-                "Error lors de l'export du " .
+                "Erreur lors de l'export du " .
                 $dateTimeStart->format("d/m/Y") .
                 " au " .
                 $dateTimeFinish->format("d/m/Y") .

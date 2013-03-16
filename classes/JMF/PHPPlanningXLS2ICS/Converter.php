@@ -49,34 +49,43 @@ class Converter
     }
 
     /**
-     * @param $path
+     * @param string    $pathInput
+     * @param string    $pathOutput
      * @return array
      */
-    public function convertFile($path) {
+    public function convertFile($pathInput, $pathOutput = "") {
+        $generatedFiles = array();
+
         $this->loggingService->add(
             "info",
             "Début du traitement"
         );
-        $this->inputService->openFile($path);
-        $dataExtracted = $this->inputService->extractData();
-        $this->inputService->closeFile();
 
-        $generatedFiles = array();
-        if (
-            !is_null($dataExtracted->listOfPersonnalPlanning)
-                &&
-            count($dataExtracted->listOfPersonnalPlanning) > 0
-        ) {
-            foreach ($dataExtracted->listOfPersonnalPlanning as $personnalPlanning) {
-                $generatedFiles[] = $this->outputService->exportPersonnalPlanning($personnalPlanning);
+        if (!$this->createPath($pathOutput)) {
+            $this->loggingService->add(
+                "error",
+                "Erreur : impossible de créer le répertoire" . $pathOutput
+            );
+        } else {
+            $this->inputService->openFile($pathInput);
+            $dataExtracted = $this->inputService->extractData();
+            $this->inputService->closeFile();
+
+            if (
+                !is_null($dataExtracted->listOfPersonnalPlanning)
+                    &&
+                count($dataExtracted->listOfPersonnalPlanning) > 0
+            ) {
+                foreach ($dataExtracted->listOfPersonnalPlanning as $personnalPlanning) {
+                    $generatedFiles[] = $this->outputService->exportPersonnalPlanning($personnalPlanning, $pathOutput);
+                }
             }
+
+            $this->loggingService->add(
+                "info",
+                "Fin du traitement"
+            );
         }
-
-        $this->loggingService->add(
-            "info",
-            "Fin du traitement"
-        );
-
         return $generatedFiles;
     }
 
@@ -88,4 +97,16 @@ class Converter
         return $this->loggingService->displayLog();
     }
 
+
+    /**
+     * @param $path
+     * @return bool
+     */
+    private function createPath(&$path)
+    {
+        if ((strrpos($path, '/', -1) + 1) != strlen($path)) {
+            $path .= '/';
+        }
+        return is_dir($path) || mkdir($path, 0755, true);
+    }
 }

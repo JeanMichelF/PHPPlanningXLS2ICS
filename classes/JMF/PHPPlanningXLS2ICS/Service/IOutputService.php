@@ -14,7 +14,8 @@ interface IOutputService
 {
     /**
      * @param PersonnalPlanning $planning
+     * @param string            $path       Directory where to store files
      * @return string                       Path of the generated file
      */
-    public function exportPersonnalPlanning(PersonnalPlanning $planning);
+    public function exportPersonnalPlanning(PersonnalPlanning $planning, $path= "");
 }

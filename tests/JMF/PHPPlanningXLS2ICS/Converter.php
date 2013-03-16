@@ -32,13 +32,13 @@ class Converter extends atoum\test
     public $testFile = '/../../fixtures/test.xls';
 
     /**
-     *
+     *@tags active
      */
     public function testConverterOk() {
         //création de l'objet à tester
         $converterTest = new PHPPlanningXLS2ICS\Converter();
 
-        $results = $converterTest->convertFile(__DIR__ . $this->testFile);
+        $results = $converterTest->convertFile(__DIR__ . $this->testFile, __DIR__ . "../../../result/test");
 
         echo $converterTest->showLogs();
         $this->array($results)
