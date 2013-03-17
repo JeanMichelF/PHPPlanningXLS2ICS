@@ -15,6 +15,14 @@ use JMF\PHPPlanningXLS2ICS\Service\ICSOutput;
 use JMF\PHPPlanningXLS2ICS\Service\ILoggingService;
 use JMF\PHPPlanningXLS2ICS\Service\ArrayLogging;
 
+/** PHPPlanningXLS2ICS root directory */
+if (!defined('PHPPlanningXLS2ICS')) {
+    define('PHPPlanningXLS2ICS', dirname(__FILE__) . '/../../../');
+    require(PHPPlanningXLS2ICS . 'SplClassLoader.php');
+    $loader = new \SplClassLoader('JMF', PHPPlanningXLS2ICS.'/classes');
+    $loader->register();
+}
+
 class Converter
 {
     /** @var IInputService */

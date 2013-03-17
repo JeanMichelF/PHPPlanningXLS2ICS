@@ -19,11 +19,7 @@ use \mageekguy\atoum;
 use \JMF\PHPPlanningXLS2ICS;
 
 //Class loader
-require_once __DIR__."/../../../SplClassLoader.php";
-
-$loader = new \SplClassLoader('JMF', __DIR__.'/../../../classes');
-$loader->register();
-
+require_once __DIR__ . '/../../../classes/JMF/PHPPlanningXLS2ICS/Converter.php';
 /**
  * @namespace tests\
  */
