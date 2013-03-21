@@ -1,3 +1,0 @@
-[submodule "PHPPlanningXLS2ICS/lib/PHPExcel"]
-	path = PHPPlanningXLS2ICS/lib/PHPExcel
-	url = git://github.com/PHPOffice/PHPExcel.git
