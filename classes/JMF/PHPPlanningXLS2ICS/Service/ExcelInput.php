@@ -78,7 +78,7 @@ class ExcelInput implements IInputService
                 $this->objPHPExcel = PHPExcel_IOFactory::load($path);
             } catch(\PHPExcel_Reader_Exception $e) {
                 $this->loggingService->add(
-                    "error",
+                    ILoggingService::ERROR,
                     "Impossible d'ouvrir le fichier " . $path . " : " . $e->getMessage()
                 );
                 throw $e;
@@ -122,7 +122,7 @@ class ExcelInput implements IInputService
             }
             if (empty($daysOfTheSheet)) {
                 $this->loggingService->add(
-                    "error",
+                    ILoggingService::ERROR,
                     "Impossible de trouver la semaine correspondant à la feuille " . $sheetTitleValue
                 );
             } else {
@@ -215,7 +215,7 @@ class ExcelInput implements IInputService
                 } else {
                     $dayData = null;
                     $this->loggingService->add(
-                        "error",
+                        ILoggingService::ERROR,
                         "Impossible de trouver l'activité de " .
                         $name .
                         " pour le " .
@@ -264,7 +264,7 @@ class ExcelInput implements IInputService
             $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
         } catch (\Exception $e) {
             $this->loggingService->add(
-                "error",
+                ILoggingService::ERROR,
                 "Impossible de trouver les heures correctes de travail de " .
                 $name .
                 " pour le " .
@@ -310,7 +310,7 @@ class ExcelInput implements IInputService
                         $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
                     } catch (\Exception $e) {
                         $this->loggingService->add(
-                            "error",
+                            ILoggingService::ERROR,
                             "Impossible de trouver le jour correspondant à " .
                             $date->format("d/m/Y") .
                             " - " .

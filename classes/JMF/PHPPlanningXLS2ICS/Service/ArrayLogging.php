@@ -42,16 +42,45 @@ class ArrayLogging implements ILoggingService
     public function add($level, $message)
     {
         $timestamp = new \DateTime();
-        ArrayLogging::getInstance()->logData[] =
-            "[" . $timestamp->format("d/m/Y H:i:s") . "] - " . $level . " - " . $message;
+        $logData = new \stdClass();
+        $reflect = new \ReflectionClass($this);
+        $constants = $reflect->getConstants();
+        $constantName = "ERROR";
+        foreach ($constants as $name => $value) {
+            if ($value == $level)
+            {
+                $constantName = $name;
+                break;
+            }
+        }
+        $logData->level = $level;
+        $logData->message =
+            "[" .
+            $timestamp->format("d/m/Y H:i:s") .
+            "] - " .
+            constant('self::' .
+            $constantName .
+            '_STRING') .
+            " - " .
+            $message;
+        ArrayLogging::getInstance()->logData[] = $logData;
+
     }
 
     /**
-     * @return string
+     * @param null $level
+     * @return mixed|string
      */
-    public function displayLog()
+    public function displayLog($level = null)
     {
-        return implode(PHP_EOL, $this->logData);
+        $filteredArray = array();
+        foreach ($this->logData as $logData) {
+            if (is_null($level) || (!is_null($level) && $logData->level >= $level)) {
+                $filteredArray[] = $logData->message;
+            }
+        }
+
+        return implode(PHP_EOL, $filteredArray);
     }
 
 

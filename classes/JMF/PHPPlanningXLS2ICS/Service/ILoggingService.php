@@ -10,6 +10,16 @@ namespace JMF\PHPPlanningXLS2ICS\Service;
 
 interface ILoggingService
 {
+    const ERROR = 40;
+    const WARNING  = 30;
+    const INFO = 20;
+    const DEBUG = 10;
+
+    const ERROR_STRING = "error";
+    const WARNING_STRING  = "warning";
+    const INFO_STRING = "info";
+    const DEBUG_STRING = "debug";
+
     /**
      * @param $level
      * @param $message
@@ -17,9 +27,10 @@ interface ILoggingService
     public function add($level, $message);
 
     /**
-     * @return string
+     * @param null $level
+     * @return mixed
      */
-    public function displayLog();
+    public function displayLog($level = null);
 
     /**
      * @return mixed

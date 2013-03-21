@@ -26,17 +26,22 @@ $loader->register();
 class ArrayLogging extends atoum\test
 {
     /**
-     *
+     * @tags active
      */
     public function testLog() {
-        \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->add("debug", "test un");
-        \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->add("error", "test deux");
+        \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->add(\JMF\PHPPlanningXLS2ICS\Service\ILoggingService::DEBUG, "test un");
+        \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->add(\JMF\PHPPlanningXLS2ICS\Service\ILoggingService::ERROR, "test deux");
 
         $this
             ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog())
             ->contains("debug")
             ->contains("error")
             ->contains("test un")
+            ->contains("test deux");
+
+        $this
+            ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::INFO))
+            ->contains("error")
             ->contains("test deux");
 
         \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->pruneLog();

@@ -65,13 +65,13 @@ class Converter
         $generatedFiles = array();
 
         $this->loggingService->add(
-            "info",
+            ILoggingService::INFO,
             "Début du traitement"
         );
 
         if (!$this->createPath($pathOutput)) {
             $this->loggingService->add(
-                "error",
+                ILoggingService::ERROR,
                 "Erreur : impossible de créer le répertoire" . $pathOutput
             );
         } else {
@@ -90,7 +90,7 @@ class Converter
             }
 
             $this->loggingService->add(
-                "info",
+                ILoggingService::INFO,
                 "Fin du traitement"
             );
         }

@@ -121,7 +121,7 @@ class ICSOutput implements IOutputService
             }
         } catch (\Exception $e) {
             $this->loggingService->add(
-                "error",
+                ILoggingService::ERROR,
                 "Erreur lors de l'export du " .
                 $dateTimeStart->format("d/m/Y") .
                 " au " .
