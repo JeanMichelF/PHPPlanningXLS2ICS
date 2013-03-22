@@ -215,7 +215,7 @@ class ExcelInput implements IInputService
                 } else {
                     $dayData = null;
                     $this->loggingService->add(
-                        ILoggingService::ERROR,
+                        ILoggingService::WARNING,
                         "Impossible de trouver l'activité de " .
                         $name .
                         " pour le " .
@@ -264,7 +264,7 @@ class ExcelInput implements IInputService
             $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
         } catch (\Exception $e) {
             $this->loggingService->add(
-                ILoggingService::ERROR,
+                ILoggingService::WARNING,
                 "Impossible de trouver les heures correctes de travail de " .
                 $name .
                 " pour le " .

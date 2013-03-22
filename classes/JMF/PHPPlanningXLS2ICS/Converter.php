@@ -98,6 +98,7 @@ class Converter
     }
 
     /**
+     * Return all the logs
      * @return string
      */
     public function showLogs()
@@ -105,6 +106,41 @@ class Converter
         return $this->loggingService->displayLog();
     }
 
+    /**
+     * Return ERROR logs
+     * @return string
+     */
+    public function showErrorLogs()
+    {
+        return $this->loggingService->displayLog(ILoggingService::ERROR);
+    }
+
+    /**
+     * Return WARNING and ERROR logs
+     * @return string
+     */
+    public function showWarningLogs()
+    {
+        return $this->loggingService->displayLog(ILoggingService::WARNING);
+    }
+
+    /**
+     * Return INFO, WARNING and ERROR logs
+     * @return string
+     */
+    public function showInfoLogs()
+    {
+        return $this->loggingService->displayLog(ILoggingService::INFO);
+    }
+
+    /**
+     * Return DEBUG, INFO, WARNING and ERROR logs
+     * @return string
+     */
+    public function showDebugLogs()
+    {
+        return $this->loggingService->displayLog(ILoggingService::DEBUG);
+    }
 
     /**
      * @param $path
