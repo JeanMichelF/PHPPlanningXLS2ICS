@@ -85,7 +85,9 @@ class Converter
                 count($dataExtracted->listOfPersonnalPlanning) > 0
             ) {
                 foreach ($dataExtracted->listOfPersonnalPlanning as $personnalPlanning) {
-                    $generatedFiles[] = $this->outputService->exportPersonnalPlanning($personnalPlanning, $pathOutput);
+                    $filename = $this->outputService->exportPersonnalPlanning($personnalPlanning, $pathOutput);
+                    $res = array("name" => $personnalPlanning->name, "filename" => $filename);
+                    $generatedFiles[] = $res;
                 }
             }
 

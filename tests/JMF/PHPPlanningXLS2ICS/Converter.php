@@ -39,15 +39,15 @@ class Converter extends atoum\test
         echo $converterTest->showLogs();
         $this->array($results)
             ->hasSize(9)
-            ->contains('planningJulie.ics')
-            ->contains('planningXavier.ics')
-            ->contains('planningNoelie.ics')
-            ->contains('planningOlivier.ics')
-            ->contains('planningAline.ics')
-            ->contains('planningAnne.ics')
-            ->contains('planningClaire.ics')
-            ->contains('planningCeline.ics')
-            ->contains('planningMarie.ics');
+            ->contains(array('name' => "Julie", 'filename' => 'planningJulie.ics'))
+            ->contains(array('name' => "Xavier", 'filename' => 'planningXavier.ics'))
+            ->contains(array('name' => "Noëlie", 'filename' => 'planningNoelie.ics'))
+            ->contains(array('name' => "Olivier", 'filename' => 'planningOlivier.ics'))
+            ->contains(array('name' => "Aline", 'filename' => 'planningAline.ics'))
+            ->contains(array('name' => "Anne", 'filename' => 'planningAnne.ics'))
+            ->contains(array('name' => "Claire", 'filename' => 'planningClaire.ics'))
+            ->contains(array('name' => "Céline", 'filename' => 'planningCeline.ics'))
+            ->contains(array('name' => "Marie", 'filename' => 'planningMarie.ics'));
     }
 
     /**
