@@ -46,7 +46,7 @@ class ExcelInput implements IInputService
         "AVRIL",
         "MAI",
         "JUIN",
-        "Juillet",
+        "JUILLET",
         "AOUT",
         "SEPTEMBRE",
         "OCTOBRE",
@@ -113,11 +113,11 @@ class ExcelInput implements IInputService
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
             /** @todo find a better way to grab days */
-            $sheetTitleValue = trim($sheet->getTitle());
+            $sheetTitleValue = strtoupper(trim($sheet->getTitle()));
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                $cellWeekValue = trim($cell->getValue());
+                $cellWeekValue = strtoupper(trim($cell->getValue()));
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
@@ -305,7 +305,6 @@ class ExcelInput implements IInputService
     private function getDaysOfWeek($cellWeekValue)
     {
         $daysOfTheSheet = array();
-
         $matches = explode(" ", $cellWeekValue);
         if (count($matches) > 2) {
             $month = $matches[count($matches) - 1];
