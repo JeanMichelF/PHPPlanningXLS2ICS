@@ -24,4 +24,6 @@ class DayData
     public $isHotels = false;
     /** @var bool */
     public $isDetaches = false;
+    /** @var string */
+    public $specificDay = "";
 }

@@ -200,9 +200,6 @@ class ExcelInput implements IInputService
             case "CP":
                 $dayData = $this->setNotWorkingDay(TypeOfDay::CP, $day);
                 break;
-            case "RH":
-                $dayData = $this->setNotWorkingDay(TypeOfDay::RH, $day);
-                break;
             case "RJF":
                 $dayData = $this->setNotWorkingDay(TypeOfDay::RJF, $day);
                 break;
@@ -213,14 +210,18 @@ class ExcelInput implements IInputService
                     $finishTime = strtoupper($matches[1]);
                     $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color, $name);
                 } else {
-                    $dayData = null;
-                    $this->loggingService->add(
-                        ILoggingService::WARNING,
-                        "Impossible de trouver l'activité de " .
-                        $name .
-                        " pour le " .
-                        $day->format("d/m/Y")
-                    );
+                    if (!empty($dayValue)) {
+                        $dayData = $this->setSpecificDay(TypeOfDay::SPECIFIC_DAY, $day, $dayValue);
+                    } else {
+                        $dayData = null;
+                        $this->loggingService->add(
+                            ILoggingService::WARNING,
+                            "Impossible de trouver l'activité de " .
+                            $name .
+                            " pour le " .
+                            $day->format("d/m/Y")
+                        );
+                    }
                 }
                 break;
         }
@@ -241,6 +242,20 @@ class ExcelInput implements IInputService
         $dayData->finishingHour = $day;
         $dayData->isHotels = false;
         $dayData->isDetaches = false;
+        $dayData->specificDay = "";
+        return $dayData;
+    }
+
+    /**
+     * @param $typeOfDay    int         Day to update
+     * @param $day          \DateTime   Day of the sheet
+     * @param $dayValue     string      Value of the string in the Excel Cell
+     * @return DayData
+     */
+    private function setSpecificDay($typeOfDay, $day, $dayValue)
+    {
+        $dayData = self::setNotWorkingDay($typeOfDay, $day);
+        $dayData->specificDay = $dayValue;
         return $dayData;
     }
 
@@ -280,6 +295,7 @@ class ExcelInput implements IInputService
         if (self::COLOR_DETACHES == $color) {
             $dayData->isDetaches = true;
         }
+        $dayData->specificDay = "";
         return $dayData;
     }
     /**

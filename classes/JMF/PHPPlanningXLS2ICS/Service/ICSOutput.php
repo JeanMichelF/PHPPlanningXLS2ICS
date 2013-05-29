@@ -8,6 +8,7 @@
  */
 namespace JMF\PHPPlanningXLS2ICS\Service;
 
+use JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay;
 use \JMF\PHPPlanningXLS2ICS\Data\PersonnalPlanning;
 use \JMF\PHPPlanningXLS2ICS\Data\DayData;
 
@@ -140,14 +141,18 @@ class ICSOutput implements IOutputService
         "DTSTAMP:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
         "UID:" . md5(uniqid(mt_rand(), true)) . '@PHPPlanningXLS2ICS.fr' . PHP_EOL .
         "CREATED:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
-        "DESCRIPTION:" . constant('self::EVENT_DESCRIPTION_' . $dayData->typeOfDay) .
+        "DESCRIPTION:" . (TypeOfDay::SPECIFIC_DAY == $dayData->typeOfDay ?
+            $dayData->specificDay :
+            constant('self::EVENT_DESCRIPTION_' . $dayData->typeOfDay)) .
             ($dayData->isHotels ? self::EVENT_DESCRIPTION_HOTELS : '') .
             ($dayData->isDetaches ? self::EVENT_DESCRIPTION_DETACHES : '') . PHP_EOL .
         "LAST-MODIFIED:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
         "LOCATION:" . PHP_EOL .
         "SEQUENCE:0" . PHP_EOL .
         "STATUS:CONFIRMED" . PHP_EOL .
-        "SUMMARY:" . constant('self::EVENT_SUMMARY_' . $dayData->typeOfDay) .
+        "SUMMARY:" . (TypeOfDay::SPECIFIC_DAY == $dayData->typeOfDay ?
+            $dayData->specificDay :
+            constant('self::EVENT_SUMMARY_' . $dayData->typeOfDay)) .
             ($dayData->isHotels ? self::EVENT_SUMMARY_HOTELS : '') .
             ($dayData->isDetaches ? self::EVENT_SUMMARY_DETACHES : '') . PHP_EOL .
         "TRANSP:" . $eventTransp . PHP_EOL .

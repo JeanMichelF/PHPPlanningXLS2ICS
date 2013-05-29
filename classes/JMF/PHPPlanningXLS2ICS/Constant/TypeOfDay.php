@@ -18,4 +18,5 @@ class TypeOfDay
     const RJF = 6;
     const RH = 7;
     const FERIE = 8;
+    const SPECIFIC_DAY = 9;
 }

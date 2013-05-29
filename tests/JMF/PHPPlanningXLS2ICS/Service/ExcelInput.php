@@ -152,6 +152,9 @@ class ExcelInput extends atoum\test
             ->boolean($mondayJulie->isAllDayLong)
             ->isTrue();
         $this
+            ->string($mondayJulie->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($mondayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '04', '00', '00', '00');
         $this
@@ -170,6 +173,9 @@ class ExcelInput extends atoum\test
         $this
             ->boolean($tuesdayJulie->isDetaches)
             ->isFalse();
+        $this
+            ->string($tuesdayJulie->specificDay)
+            ->isEmpty();
         $this
             ->dateTime($tuesdayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '05', '10', '00', '00');
@@ -190,6 +196,9 @@ class ExcelInput extends atoum\test
             ->boolean($wednesdayJulie->isDetaches)
             ->isFalse();
         $this
+            ->string($wednesdayJulie->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($wednesdayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '06', '00', '00', '00');
         $this
@@ -208,6 +217,9 @@ class ExcelInput extends atoum\test
         $this
             ->boolean($thursdayJulie->isDetaches)
             ->isFalse();
+        $this
+            ->string($thursdayJulie->specificDay)
+            ->isEmpty();
         $this
             ->dateTime($thursdayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '07', '00', '00', '00');
@@ -228,6 +240,9 @@ class ExcelInput extends atoum\test
             ->boolean($fridayJulie->isDetaches)
             ->isFalse();
         $this
+            ->string($fridayJulie->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($fridayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
         $this
@@ -246,6 +261,9 @@ class ExcelInput extends atoum\test
         $this
             ->boolean($saturdayJulie->isDetaches)
             ->isFalse();
+        $this
+            ->string($saturdayJulie->specificDay)
+            ->isEmpty();
         $this
             ->dateTime($saturdayJulie->startingHour)
             ->hasDateAndTime('2013', '03', '09', '00', '00', '00');
@@ -266,6 +284,9 @@ class ExcelInput extends atoum\test
             ->boolean($sundayJulie->isDetaches)
             ->isFalse();
         $this
+            ->string($sundayJulie->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($sundayJulie->startingHour)
             ->hasDate('2013', '03', '10', '00', '00', '00');
         $this
@@ -284,6 +305,9 @@ class ExcelInput extends atoum\test
         $this
             ->boolean($nextTuesdayJulie->isDetaches)
             ->isFalse();
+        $this
+            ->string($nextTuesdayJulie->specificDay)
+            ->isEmpty();
         $this
             ->dateTime($nextTuesdayJulie->startingHour)
             ->hasDateAndTime('2013', '04', '30', '16', '30', '00');
@@ -305,6 +329,9 @@ class ExcelInput extends atoum\test
             ->boolean($fridayAnne->isDetaches)
             ->isFalse();
         $this
+            ->string($fridayAnne->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($fridayAnne->startingHour)
             ->hasDateAndTime('2013', '03', '08', '00', '00', '00');
         $this
@@ -325,6 +352,9 @@ class ExcelInput extends atoum\test
             ->boolean($mondayOlivier->isDetaches)
             ->isFalse();
         $this
+            ->string($mondayOlivier->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($mondayOlivier->startingHour)
             ->hasDateAndTime('2013', '03', '04', '09', '00', '00');
         $this
@@ -343,6 +373,9 @@ class ExcelInput extends atoum\test
         $this
             ->boolean($tuesdayOlivier->isDetaches)
             ->isTrue();
+        $this
+            ->string($tuesdayOlivier->specificDay)
+            ->isEmpty();
         $this
             ->dateTime($tuesdayOlivier->startingHour)
             ->hasDateAndTime('2013', '03', '05', '09', '00', '00');
@@ -363,11 +396,36 @@ class ExcelInput extends atoum\test
             ->boolean($wednesdayOlivier->isDetaches)
             ->isTrue();
         $this
+            ->string($wednesdayOlivier->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($wednesdayOlivier->startingHour)
             ->hasDateAndTime('2013', '03', '06', '09', '00', '00');
         $this
             ->dateTime($wednesdayOlivier->finishingHour)
             ->hasDateAndTime('2013', '03', '06', '16', '00', '00');
+        $thursdayOlivier = $planningOlivier->listOfDayData[3];
+        $this
+            ->integer($thursdayOlivier->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::SPECIFIC_DAY);
+        $this
+            ->boolean($thursdayOlivier->isAllDayLong)
+            ->isTrue();
+        $this
+            ->boolean($thursdayOlivier->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($thursdayOlivier->isDetaches)
+            ->isFalse();
+        $this
+            ->string($thursdayOlivier->specificDay)
+            ->contains("récup TEST");
+        $this
+            ->dateTime($thursdayOlivier->startingHour)
+            ->hasDateAndTime('2013', '03', '07', '00', '00', '00');
+        $this
+            ->dateTime($thursdayOlivier->finishingHour)
+            ->hasDateAndTime('2013', '03', '07', '00', '00', '00');
         $nextWednesdayOlivier = $planningOlivier->listOfDayData[9];
         $this
             ->integer($nextWednesdayOlivier->typeOfDay)
@@ -382,10 +440,35 @@ class ExcelInput extends atoum\test
             ->boolean($nextWednesdayOlivier->isDetaches)
             ->isFalse();
         $this
+            ->string($nextWednesdayOlivier->specificDay)
+            ->isEmpty();
+        $this
             ->dateTime($nextWednesdayOlivier->startingHour)
             ->hasDateAndTime('2013', '05', '01', '00', '00', '00');
         $this
             ->dateTime($nextWednesdayOlivier->finishingHour)
             ->hasDateAndTime('2013', '05', '01', '00', '00', '00');
+        $nextThursdayOlivier = $planningOlivier->listOfDayData[10];
+        $this
+            ->integer($nextThursdayOlivier->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::SPECIFIC_DAY);
+        $this
+            ->boolean($nextThursdayOlivier->isAllDayLong)
+            ->isTrue();
+        $this
+            ->boolean($nextThursdayOlivier->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($nextThursdayOlivier->isDetaches)
+            ->isFalse();
+        $this
+            ->string($nextThursdayOlivier->specificDay)
+            ->contains("arrêt maladie");
+        $this
+            ->dateTime($nextThursdayOlivier->startingHour)
+            ->hasDateAndTime('2013', '05', '02', '00', '00', '00');
+        $this
+            ->dateTime($nextThursdayOlivier->finishingHour)
+            ->hasDateAndTime('2013', '05', '02', '00', '00', '00');
     }
 }
