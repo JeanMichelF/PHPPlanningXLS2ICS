@@ -86,6 +86,7 @@ class ICSOutput implements IOutputService
         "METHOD:PUBLISH" . PHP_EOL .
         "X-WR-CALNAME:" . self::CALENDAR_NAME . " "  . $name . PHP_EOL .
         "X-WR-TIMEZONE:Europe/Paris" . PHP_EOL .
+        "TZID:Europe/Paris" . PHP_EOL .
         "X-WR-CALDESC:" . self::CALENDAR_DESC_1 . " " . $name . ". " . self::CALENDAR_DESC_2 . PHP_EOL;
         return $header;
     }
@@ -114,10 +115,10 @@ class ICSOutput implements IOutputService
                 $endDate = ';VALUE=DATE:' . $dateTimeFinish->add(new \DateInterval("P1D"))->format("Ymd");
                 $eventTransp = "TRANSPARENT";
             } else {
-                $dateTimeStart->setTimezone(new \DateTimeZone('UTC'));
-                $dateTimeFinish->setTimezone(new \DateTimeZone('UTC'));
-                $startDate = ':' . $dateTimeStart->format('Ymd'). 'T'. $dateTimeStart->format('His') . 'Z';
-                $endDate = ':' . $dateTimeFinish->format('Ymd'). 'T'. $dateTimeFinish->format('His') . 'Z';
+                //$dateTimeStart->setTimezone(new \DateTimeZone('UTC'));
+                //$dateTimeFinish->setTimezone(new \DateTimeZone('UTC'));
+                $startDate = ';TZID=Europe/Paris:' . $dateTimeStart->format('Ymd'). 'T'. $dateTimeStart->format('His');
+                $endDate = ';TZID=Europe/Paris:' . $dateTimeFinish->format('Ymd'). 'T'. $dateTimeFinish->format('His');
                 $eventTransp = "OPAQUE";
             }
         } catch (\Exception $e) {
@@ -138,15 +139,15 @@ class ICSOutput implements IOutputService
         $event = "BEGIN:VEVENT" . PHP_EOL .
         "DTSTART" . $startDate . PHP_EOL .
         "DTEND" . $endDate . PHP_EOL .
-        "DTSTAMP:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
+        "DTSTAMP;TZID=Europe/Paris:" . gmdate('Ymd').'T'. gmdate('His') . PHP_EOL .
         "UID:" . md5(uniqid(mt_rand(), true)) . '@PHPPlanningXLS2ICS.fr' . PHP_EOL .
-        "CREATED:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
+        "CREATED;TZID=Europe/Paris:" . gmdate('Ymd').'T'. gmdate('His') . PHP_EOL .
         "DESCRIPTION:" . (TypeOfDay::SPECIFIC_DAY == $dayData->typeOfDay ?
             $dayData->specificDay :
             constant('self::EVENT_DESCRIPTION_' . $dayData->typeOfDay)) .
             ($dayData->isHotels ? self::EVENT_DESCRIPTION_HOTELS : '') .
             ($dayData->isDetaches ? self::EVENT_DESCRIPTION_DETACHES : '') . PHP_EOL .
-        "LAST-MODIFIED:" . gmdate('Ymd').'T'. gmdate('His') . 'Z' . PHP_EOL .
+        "LAST-MODIFIED;TZID=Europe/Paris:" . gmdate('Ymd').'T'. gmdate('His') . PHP_EOL .
         "LOCATION:" . PHP_EOL .
         "SEQUENCE:0" . PHP_EOL .
         "STATUS:CONFIRMED" . PHP_EOL .

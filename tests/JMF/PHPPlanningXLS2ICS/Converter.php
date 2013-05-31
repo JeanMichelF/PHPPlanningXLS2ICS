@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../../classes/JMF/PHPPlanningXLS2ICS/Converter.php';
  */
 class Converter extends atoum\test
 {
-    public $testFile = '/../../fixtures/test.xls';
+    public $testFile = '/../../fixtures/testComplet2.xlsx';
 
     /**
      *@tags active

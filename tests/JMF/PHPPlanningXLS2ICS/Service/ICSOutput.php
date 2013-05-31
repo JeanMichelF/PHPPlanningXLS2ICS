@@ -69,11 +69,11 @@ class ICSOutput extends atoum\test
             ->contains("BEGIN:VEVENT")
             ->contains("DTSTART;VALUE=DATE:20130308")
             ->contains("DTEND;VALUE=DATE:20130309")
-            ->contains("DTSTAMP:")
+            ->contains("DTSTAMP")
             ->contains("UID:")
-            ->contains("CREATED:")
+            ->contains("CREATED")
             ->contains("DESCRIPTION:")
-            ->contains("LAST-MODIFIED:")
+            ->contains("LAST-MODIFIED")
             ->contains("LOCATION:")
             ->contains("SEQUENCE:0")
             ->contains("STATUS:CONFIRMED")
@@ -122,13 +122,13 @@ class ICSOutput extends atoum\test
             ->contains("X-WR-CALDESC:" . \JMF\PHPPlanningXLS2ICS\Service\ICSOutput::CALENDAR_DESC_1 . " Céline. " . \JMF\PHPPlanningXLS2ICS\Service\ICSOutput::CALENDAR_DESC_2)
         // Test Work
             ->contains("BEGIN:VEVENT")
-            ->contains("DTSTART:20130308T181200Z")  // 19h12 en heure française
-            ->contains("DTEND:20130308T192400Z")    // 20h24 en heure française
-            ->contains("DTSTAMP:")
+            ->contains("DTSTART;TZID=Europe/Paris:20130308T191200")  // 19h12 en heure française
+            ->contains("DTEND;TZID=Europe/Paris:20130308T202400")    // 20h24 en heure française
+            ->contains("DTSTAMP")
             ->contains("UID:")
-            ->contains("CREATED:")
+            ->contains("CREATED")
             ->contains("DESCRIPTION:Travail")
-            ->contains("LAST-MODIFIED:")
+            ->contains("LAST-MODIFIED")
             ->contains("LOCATION:")
             ->contains("SEQUENCE:0")
             ->contains("STATUS:CONFIRMED")
@@ -177,13 +177,13 @@ class ICSOutput extends atoum\test
             ->contains("X-WR-CALDESC:" . \JMF\PHPPlanningXLS2ICS\Service\ICSOutput::CALENDAR_DESC_1 . " Céline. " . \JMF\PHPPlanningXLS2ICS\Service\ICSOutput::CALENDAR_DESC_2)
         // Test Work
             ->contains("BEGIN:VEVENT")
-            ->contains("DTSTART:20130308T181200Z")  // 19h12 en heure française
-            ->contains("DTEND:20130308T192400Z")    // 20h24 en heure française
-            ->contains("DTSTAMP:")
+            ->contains("DTSTART;TZID=Europe/Paris:20130308T191200")  // 19h12 en heure française
+            ->contains("DTEND;TZID=Europe/Paris:20130308T202400")    // 20h24 en heure française
+            ->contains("DTSTAMP")
             ->contains("UID:")
-            ->contains("CREATED:")
+            ->contains("CREATED")
             ->contains("DESCRIPTION:Travail : attention, journée HOTELS")
-            ->contains("LAST-MODIFIED:")
+            ->contains("LAST-MODIFIED")
             ->contains("LOCATION:")
             ->contains("SEQUENCE:0")
             ->contains("STATUS:CONFIRMED")
