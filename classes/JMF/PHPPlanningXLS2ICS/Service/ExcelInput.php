@@ -32,6 +32,7 @@ class ExcelInput implements IInputService
     const CURRENT_YEAR = 2013;
     const COLOR_HOTELS = "FF0000";
     const COLOR_DETACHES = "B81A9A";
+    const NON_WORKER_TEXT = "Référent";
 
 
     /** @var null|PHPExcel */
@@ -129,7 +130,7 @@ class ExcelInput implements IInputService
                 for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
                     $cellNameValue = trim($cell->getValue());
-                    if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue)) {
+                    if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue) && strpos($cellNameValue, self::NON_WORKER_TEXT) === false) {
                         $personnalPlanning = new PersonnalPlanning();
                         $personnalPlanning->name = $cellNameValue;
                         $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
@@ -206,8 +207,16 @@ class ExcelInput implements IInputService
             default:
                 $matches = explode("-", $dayValue);
                 if (count($matches) > 1) {
-                    $startTime = strtoupper($matches[0]);
-                    $finishTime = strtoupper($matches[1]);
+                    if (strpos($matches[0], ' ')) {
+                        $startTime = strtoupper(substr($matches[0],0,strpos($matches[0], ' ')));
+                    } else {
+                        $startTime = strtoupper($matches[0]);
+                    }
+                    if (strpos($matches[1], ' ')) {
+                        $finishTime = strtoupper(substr($matches[1],0,strpos($matches[1], ' ')));
+                    } else {
+                        $finishTime = strtoupper($matches[1]);
+                    }
                     $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color, $name);
                 } else {
                     if (!empty($dayValue)) {
