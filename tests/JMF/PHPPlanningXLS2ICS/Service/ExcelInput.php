@@ -134,7 +134,7 @@ class ExcelInput extends atoum\test
         foreach ($dataLoaded->listOfPersonnalPlanning as $personnalPlanning) {
             $this
                 ->integer(count($personnalPlanning->listOfDayData))
-                ->isEqualTo(21);
+                ->isEqualTo(28);
         }
 
         $planningJulie = $dataLoaded->listOfPersonnalPlanning["Julie"];
@@ -470,5 +470,24 @@ class ExcelInput extends atoum\test
         $this
             ->dateTime($nextThursdayOlivier->finishingHour)
             ->hasDateAndTime('2013', '05', '02', '00', '00', '00');
+        $firstFriday2014Olivier = $planningOlivier->listOfDayData[25];
+        $this
+            ->integer($firstFriday2014Olivier->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($firstFriday2014Olivier->isAllDayLong)
+            ->isFalse();
+        $this
+            ->boolean($firstFriday2014Olivier->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($firstFriday2014Olivier->isDetaches)
+            ->isFalse();
+        $this
+            ->dateTime($firstFriday2014Olivier->startingHour)
+            ->hasDateAndTime('2014', '01', '03', '13', '00', '00');
+        $this
+            ->dateTime($firstFriday2014Olivier->finishingHour)
+            ->hasDateAndTime('2014', '01', '03', '20', '00', '00');
     }
 }

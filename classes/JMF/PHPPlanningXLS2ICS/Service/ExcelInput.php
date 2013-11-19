@@ -29,7 +29,9 @@ class ExcelInput implements IInputService
     const NUMBERS_OF_DAYS_IN_A_WEEK = 7;
     const COLUMN_OF_WEEK = 0;
     const ROW_OF_WEEK = 1;
-    const CURRENT_YEAR = 2013;
+    // We have to make one...
+    const BASE_YEAR = 2013;
+    const MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID = 28;
     const COLOR_HOTELS = "FF0000";
     const COLOR_DETACHES = "B81A9A";
     const NON_WORKER_TEXT = "Référent";
@@ -39,6 +41,9 @@ class ExcelInput implements IInputService
     private $objPHPExcel = null;
     /** @var ILoggingService */
     private $loggingService;
+
+    /** @var int $currentYear */
+    private $currentYear = null;
 
     private $months = array(
         "JANVIER",
@@ -115,6 +120,20 @@ class ExcelInput implements IInputService
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
             /** @todo find a better way to grab days */
             $sheetTitleValue = strtoupper(trim($sheet->getTitle()));
+            if (null == $this->currentYear) {
+                $firstDayCell = $sheet->getCellByColumnAndRow(
+                    self::COLUMN_OF_NAMES + self::NUMBERS_OF_DAYS_IN_A_WEEK,
+                    self::FIRST_ROW_OF_WORKER + 1
+                );
+                $firstDayCellValue = trim($firstDayCell->getValue());
+                $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($sheetTitleValue);
+                if (null == $monthOfTheLastDayOfTheFirstWeek) {
+                    $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
+                    $cellWeekValue = strtoupper(trim($cell->getValue()));
+                    $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($cellWeekValue);
+                }
+                $this->setCurrentYear($firstDayCellValue, $monthOfTheLastDayOfTheFirstWeek);
+            }
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
@@ -307,6 +326,7 @@ class ExcelInput implements IInputService
         $dayData->specificDay = "";
         return $dayData;
     }
+
     /**
      * @param $cellWeekValue    string
      * @return array
@@ -321,10 +341,12 @@ class ExcelInput implements IInputService
             $reverseMonths = array_flip($this->months);
             if (array_key_exists($month, $reverseMonths)) {
                 $monthOfLastDayOfWeek = $reverseMonths[$month];
-                /** @todo find a better way to handle year */
+                if ($monthOfLastDayOfWeek == 0 && $day < self::NUMBERS_OF_DAYS_IN_A_WEEK) {
+                    $this->currentYear++;
+                }
                 $referenceDay =
                     new \DateTime(
-                        self::CURRENT_YEAR . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
+                        $this->currentYear . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
                         , new \DateTimeZone('Europe/Paris')
                     );
                 for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
@@ -365,6 +387,78 @@ class ExcelInput implements IInputService
             );
         } else {
             $data->listOfPersonnalPlanning[$cellNameValue] = $personnalPlanning;
+        }
+    }
+
+    /**
+     * @param $cellWeekValue    string
+     * @return array
+     */
+    private function getMonthOfTheLastDayOfWeek($cellWeekValue)
+    {
+        $monthOfLastDayOfWeek = null;
+        $matches = explode(" ", $cellWeekValue);
+        if (count($matches) > 2) {
+            $month = $matches[count($matches) - 1];
+            $reverseMonths = array_flip($this->months);
+            if (array_key_exists($month, $reverseMonths)) {
+                $monthOfLastDayOfWeek = $reverseMonths[$month];
+            }
+        }
+        return $monthOfLastDayOfWeek;
+    }
+
+    /**
+     * We have to find which year it is from the name of the day and the month
+     * We know that BASE_YEAR is 2013 AND that every 28 years, the calendar is being the same again
+     * cf. http://progkor.inf.elte.hu/200405.1/calender_faq.htm
+     * @param $lastDateOfTheWeek
+     * @param $monthOfTheLastDayOfTheFirstWeek
+     */
+    private function setCurrentYear($lastDateOfTheWeek, $monthOfTheLastDayOfTheFirstWeek)
+    {
+        $days = array('dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi');
+        try {
+            $matches = explode(" ", trim($lastDateOfTheWeek));
+            if (count($matches) == 2) {
+                $dayReference = $matches[count($matches) - 1];
+                $dayNameReference = $matches[count($matches) - 2];
+                $i = 0;
+                do {
+                    $testYear = self::BASE_YEAR + $i;
+                    $dayNumber = date ('w', mktime(0, 0, 0, $monthOfTheLastDayOfTheFirstWeek, $dayReference, $testYear));
+                    $i++;
+                } while (
+                    (strcasecmp($dayNameReference, $days[$dayNumber]) !== 0)
+                        &&
+                    ($i < self::MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID)
+                );
+                // Good ! We've got the year of the last day of the week.
+                // Now let's have the year of the FIRST day of the week.
+                $referenceDay =
+                    new \DateTime(
+                        $testYear . '-' . ($monthOfTheLastDayOfTheFirstWeek + 1) . '-' . $dayReference
+                        , new \DateTimeZone('Europe/Paris')
+                    );
+                $date = clone $referenceDay;
+                $date->sub(new \DateInterval('P' . (self::NUMBERS_OF_DAYS_IN_A_WEEK - 1) . 'D'));
+                // And... we're done !
+                $this->currentYear = $date->format('Y');
+            } else {
+                throw new \Exception("'". $lastDateOfTheWeek . "' n'a pas le format attendu");
+            }
+        } catch (\Exception $e) {
+            echo "ERREUR";
+            $this->loggingService->add(
+                ILoggingService::INFO,
+                "Impossible de trouver l'année de référence à partir de " .
+                $lastDateOfTheWeek .
+                " " .
+                $monthOfTheLastDayOfTheFirstWeek .
+                " " .
+                $e->getMessage()
+            );
+            $this->currentYear = self::BASE_YEAR;
         }
     }
 }

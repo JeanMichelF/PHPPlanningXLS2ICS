@@ -28,7 +28,7 @@ class Converter extends atoum\test
     public $testFile = '/../../fixtures/testComplet2.xlsx';
 
     /**
-     *@tags active
+     * @tags active
      */
     public function testConverterOk() {
         //création de l'objet à tester

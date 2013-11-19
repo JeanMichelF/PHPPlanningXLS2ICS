@@ -26,7 +26,7 @@ $loader->register();
 class ArrayLogging extends atoum\test
 {
     /**
-     * @tags active
+     *
      */
     public function testLog() {
         \JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->add(\JMF\PHPPlanningXLS2ICS\Service\ILoggingService::DEBUG, "test un");
