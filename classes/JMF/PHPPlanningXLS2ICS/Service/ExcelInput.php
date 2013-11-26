@@ -118,8 +118,8 @@ class ExcelInput implements IInputService
 
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
-            /** @todo find a better way to grab days */
             $sheetTitleValue = strtoupper(trim($sheet->getTitle()));
+            // Initialization of the current year (maybe not BASE_YEAR ?)
             if (null == $this->currentYear) {
                 $firstDayCell = $sheet->getCellByColumnAndRow(
                     self::COLUMN_OF_NAMES + self::NUMBERS_OF_DAYS_IN_A_WEEK,
@@ -151,7 +151,7 @@ class ExcelInput implements IInputService
                     $cellNameValue = trim($cell->getValue());
                     if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue) && strpos($cellNameValue, self::NON_WORKER_TEXT) === false) {
                         $personnalPlanning = new PersonnalPlanning();
-                        $personnalPlanning->name = $cellNameValue;
+                        $personnalPlanning->name = $this->sanitizeName($cellNameValue);
                         $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
                             $sheet,
                             $rowOfWorker,
@@ -225,7 +225,7 @@ class ExcelInput implements IInputService
                 break;
             default:
                 $matches = explode("-", $dayValue);
-                if (count($matches) > 1) {
+                if (count($matches) > 1 && strlen($dayValue) > 1) {
                     if (strpos($matches[0], ' ')) {
                         $startTime = strtoupper(substr($matches[0],0,strpos($matches[0], ' ')));
                     } else {
@@ -303,6 +303,13 @@ class ExcelInput implements IInputService
         $start = clone $day;
         $end = clone $day;
         try {
+            // Si l'heure renseignée n'a pas de minutes, il faut les ajouter...
+            if (substr($startTime, strlen($startTime-1) != "0")) {
+                $startTime .= "00";
+            }
+            if (substr($finishTime, strlen($finishTime-1) != "0")) {
+                $finishTime .= "00";
+            }
             $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
             $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
         } catch (\Exception $e) {
@@ -315,6 +322,8 @@ class ExcelInput implements IInputService
                 " : " .
                 $e->getMessage()
             );
+            $dayData->startingHour = $start;
+            $dayData->finishingHour = $end;
         }
         /** @todo handle an array of colors (maybe) */
         if (self::COLOR_HOTELS == $color) {
@@ -426,7 +435,11 @@ class ExcelInput implements IInputService
                 $i = 0;
                 do {
                     $testYear = self::BASE_YEAR + $i;
-                    $dayNumber = date ('w', mktime(0, 0, 0, $monthOfTheLastDayOfTheFirstWeek, $dayReference, $testYear));
+                    $testedDate = new \DateTime(
+                        $testYear . '-' . ($monthOfTheLastDayOfTheFirstWeek + 1) . '-' . $dayReference
+                        , new \DateTimeZone('Europe/Paris')
+                    );
+                    $dayNumber = $testedDate->format("w");
                     $i++;
                 } while (
                     (strcasecmp($dayNameReference, $days[$dayNumber]) !== 0)
@@ -460,5 +473,15 @@ class ExcelInput implements IInputService
             );
             $this->currentYear = self::BASE_YEAR;
         }
+    }
+
+    /**
+     * @param $name string
+     * @return string
+     */
+    private function sanitizeName($name) {
+        $name = filter_var($name, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+        $name = preg_replace("/[,]+/", "", $name);
+        return $name;
     }
 }
