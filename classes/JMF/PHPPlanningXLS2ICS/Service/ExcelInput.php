@@ -304,10 +304,10 @@ class ExcelInput implements IInputService
         $end = clone $day;
         try {
             // Si l'heure renseignée n'a pas de minutes, il faut les ajouter...
-            if (substr($startTime, strlen($startTime-1) != "0")) {
+            if (substr($startTime, strlen($startTime)-1) != "0") {
                 $startTime .= "00";
             }
-            if (substr($finishTime, strlen($finishTime-1) != "0")) {
+            if (substr($finishTime, strlen($finishTime)-1) != "0") {
                 $finishTime .= "00";
             }
             $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
