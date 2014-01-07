@@ -37,7 +37,7 @@ class ExcelInput implements IInputService
     const COLOR_HOTELS = "FF0000";
     const COLOR_DETACHES = "B81A9A";
     // Because one color for one thing is too mainstream
-    const COLOR_DETACHES2 = "D410C6";
+    const COLOR_DETACHES2 = "D40AC6";
     const COLOR_PROGDIS = "00B050";
     const COLOR_HOTELHIVER = "FFC000";
     const NON_WORKER_TEXT = "Référent";
@@ -127,7 +127,7 @@ class ExcelInput implements IInputService
 
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
-            $sheetTitleValue = strtoupper($this->wd_remove_accents(trim($sheet->getTitle())));
+            $sheetTitleValue = strtoupper(ServiceHelper::wd_remove_accents(trim($sheet->getTitle())));
             // Initialization of the current year (maybe not BASE_YEAR ?)
             if (null == $this->currentYear) {
                 $firstDayCell = $sheet->getCellByColumnAndRow(
@@ -138,7 +138,7 @@ class ExcelInput implements IInputService
                 $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($sheetTitleValue);
                 if (null == $monthOfTheLastDayOfTheFirstWeek) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                    $cellWeekValue = strtoupper($this->wd_remove_accents(trim($cell->getValue())));
+                    $cellWeekValue = strtoupper(ServiceHelper::wd_remove_accents(trim($cell->getValue())));
                     $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($cellWeekValue);
                 }
                 $this->setCurrentYear($firstDayCellValue, $monthOfTheLastDayOfTheFirstWeek);
@@ -146,7 +146,7 @@ class ExcelInput implements IInputService
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                $cellWeekValue = strtoupper($this->wd_remove_accents(trim($cell->getValue())));
+                $cellWeekValue = strtoupper(ServiceHelper::wd_remove_accents(trim($cell->getValue())));
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
@@ -415,6 +415,7 @@ class ExcelInput implements IInputService
     }
 
     /**
+     * Create a new PersonnalPlanning for someone or merge the new into the existing one (name is the key)
      * @param $personnalPlanning    PersonnalPlanning
      * @param $data                 Planning
      */
@@ -518,23 +519,6 @@ class ExcelInput implements IInputService
         $name = filter_var($name, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
         $name = preg_replace("/[,]+/", "", $name);
         return $name;
-    }
-
-
-    /**
-     * @param string $str
-     * @param string $charset
-     * @return string
-     */
-    private function wd_remove_accents($str, $charset='utf-8')
-    {
-        $str = htmlentities($str, ENT_NOQUOTES, $charset);
-
-        $str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
-        $str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
-        $str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
-
-        return $str;
     }
 
     /**

@@ -490,7 +490,7 @@ class ExcelInput extends atoum\test
     }
 
     /**
-     * @tags active
+     *
      */
     public function testMergedGetPersonnalPlannings() {
         //création de l'objet à tester
