@@ -29,6 +29,8 @@ class ICSOutput implements IOutputService
     const EVENT_SUMMARY_8 = "Jour Férié : pas de travail";
     const EVENT_SUMMARY_HOTELS = " - HOTELS";
     const EVENT_SUMMARY_DETACHES = " - DETACHES";
+    const EVENT_SUMMARY_PROGDIS = " - PROGDIS";
+    const EVENT_SUMMARY_HOTELSHIVER = " - HOTELS HIVER";
     const EVENT_DESCRIPTION_1 = "Travail";
     const EVENT_DESCRIPTION_2 = "R.T.T.";
     const EVENT_DESCRIPTION_3 = "C.P.";
@@ -155,7 +157,9 @@ class ICSOutput implements IOutputService
             $dayData->specificDay :
             constant('self::EVENT_SUMMARY_' . $dayData->typeOfDay)) .
             ($dayData->isHotels ? self::EVENT_SUMMARY_HOTELS : '') .
-            ($dayData->isDetaches ? self::EVENT_SUMMARY_DETACHES : '') . PHP_EOL .
+            ($dayData->isDetaches ? self::EVENT_SUMMARY_DETACHES : '') .
+            ($dayData->isProGDis ? self::EVENT_SUMMARY_PROGDIS : '') .
+            ($dayData->isHotelsHiver ? self::EVENT_SUMMARY_HOTELSHIVER : '') .PHP_EOL .
         "TRANSP:" . $eventTransp . PHP_EOL .
         "END:VEVENT" . PHP_EOL;
 

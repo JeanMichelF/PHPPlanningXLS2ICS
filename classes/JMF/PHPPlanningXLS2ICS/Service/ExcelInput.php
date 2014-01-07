@@ -22,7 +22,9 @@ class ExcelInput implements IInputService
 {
     // @todo handle those datas with config in constructor
     const COLUMN_OF_NAMES = 0;
-    const MAX_NUMBER_OF_WORKERS = 20;
+    // Due to merging cells, we have to put a great number here...
+    // @todo handle this with X empty cells in a row ?
+    const MAX_NUMBER_OF_WORKERS = 40;
     const FIRST_ROW_OF_WORKER = 2;
     const FIRST_COLUMN_OF_DAYS = 1;
     const FIRST_ROW_OF_DAYS = 3;
@@ -34,6 +36,8 @@ class ExcelInput implements IInputService
     const MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID = 28;
     const COLOR_HOTELS = "FF0000";
     const COLOR_DETACHES = "B81A9A";
+    const COLOR_PROGDIS = "00B050";
+    const COLOR_HOTELHIVER = "FFC000";
     const NON_WORKER_TEXT = "Référent";
 
 
@@ -59,6 +63,9 @@ class ExcelInput implements IInputService
         "NOVEMBRE",
         "DECEMBRE"
     );
+
+    /** @var  Array of merged cells */
+    private $listOfMergedCells;
 
     /**
      * @param null $loggingService
@@ -118,7 +125,7 @@ class ExcelInput implements IInputService
 
         /** @var \PHPExcel_Worksheet $sheet */
         foreach($this->objPHPExcel->getAllSheets() as $sheet) {
-            $sheetTitleValue = strtoupper(trim($sheet->getTitle()));
+            $sheetTitleValue = strtoupper($this->wd_remove_accents(trim($sheet->getTitle())));
             // Initialization of the current year (maybe not BASE_YEAR ?)
             if (null == $this->currentYear) {
                 $firstDayCell = $sheet->getCellByColumnAndRow(
@@ -129,7 +136,7 @@ class ExcelInput implements IInputService
                 $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($sheetTitleValue);
                 if (null == $monthOfTheLastDayOfTheFirstWeek) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                    $cellWeekValue = strtoupper(trim($cell->getValue()));
+                    $cellWeekValue = strtoupper($this->wd_remove_accents(trim($cell->getValue())));
                     $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($cellWeekValue);
                 }
                 $this->setCurrentYear($firstDayCellValue, $monthOfTheLastDayOfTheFirstWeek);
@@ -137,7 +144,7 @@ class ExcelInput implements IInputService
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
-                $cellWeekValue = strtoupper(trim($cell->getValue()));
+                $cellWeekValue = strtoupper($this->wd_remove_accents(trim($cell->getValue())));
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
             if (empty($daysOfTheSheet)) {
@@ -146,9 +153,14 @@ class ExcelInput implements IInputService
                     "Impossible de trouver la semaine correspondant à la feuille " . $sheetTitleValue
                 );
             } else {
+                $this->listOfMergedCells = $sheet->getMergeCells();
                 for ($rowOfWorker = self::FIRST_ROW_OF_WORKER; $rowOfWorker < self::MAX_NUMBER_OF_WORKERS; $rowOfWorker++) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_NAMES, $rowOfWorker);
-                    $cellNameValue = trim($cell->getValue());
+                    // If the cell is merged, we have to keep the previous name...
+                    $tmpCellValue = trim($cell->getValue());
+                    if (!$this->isCellMerged($cell) || ($this->isCellMerged($cell) && !empty($tmpCellValue))) {
+                        $cellNameValue = $tmpCellValue;
+                    }
                     if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue) && strpos($cellNameValue, self::NON_WORKER_TEXT) === false) {
                         $personnalPlanning = new PersonnalPlanning();
                         $personnalPlanning->name = $this->sanitizeName($cellNameValue);
@@ -182,10 +194,14 @@ class ExcelInput implements IInputService
             $activeColumn = self::COLUMN_OF_NAMES + $day + 1;
             $cellDay = $sheet->getCellByColumnAndRow($activeColumn, $rowOfWorker);
             $dayValue = trim($cellDay->getValue());
-            $color = $sheet->getStyleByColumnAndRow($activeColumn, $rowOfWorker)->getFill()->getStartColor()->getRGB();
-            $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day], $name);
-            if (!is_null($dayData)) {
-                $listOfDayData[] = $dayData;
+            // If the cell is merged, we don't treat the empty things...
+            // Otherwise, it's a bug in the Excel planning, so it should return a warning
+            if (!$this->isCellMerged($cellDay) || ($this->isCellMerged($cellDay) && !empty($dayValue))) {
+                $color = $sheet->getStyleByColumnAndRow($activeColumn, $rowOfWorker)->getFill()->getStartColor()->getRGB();
+                $dayData = $this->handleDayType($dayValue, $color, $daysOfTheSheet[$day], $name);
+                if (!is_null($dayData)) {
+                    $listOfDayData[] = $dayData;
+                }
             }
         }
         return $listOfDayData;
@@ -332,6 +348,12 @@ class ExcelInput implements IInputService
         if (self::COLOR_DETACHES == $color) {
             $dayData->isDetaches = true;
         }
+        if (self::COLOR_PROGDIS == $color) {
+            $dayData->isProGDis = true;
+        }
+        if (self::COLOR_HOTELHIVER == $color) {
+            $dayData->isHotelsHiver = true;
+        }
         $dayData->specificDay = "";
         return $dayData;
     }
@@ -347,35 +369,43 @@ class ExcelInput implements IInputService
         if (count($matches) > 2) {
             $month = $matches[count($matches) - 1];
             $day = $matches[count($matches) - 2];
-            $reverseMonths = array_flip($this->months);
-            if (array_key_exists($month, $reverseMonths)) {
-                $monthOfLastDayOfWeek = $reverseMonths[$month];
-                if ($monthOfLastDayOfWeek == 0 && $day < self::NUMBERS_OF_DAYS_IN_A_WEEK) {
-                    $this->currentYear++;
-                }
-                $referenceDay =
-                    new \DateTime(
-                        $this->currentYear . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
-                        , new \DateTimeZone('Europe/Paris')
-                    );
-                for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
-                    $date = clone $referenceDay;
-                    $toSubstract = self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1);
-                    try {
-                        $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
-                    } catch (\Exception $e) {
-                        $this->loggingService->add(
-                            ILoggingService::ERROR,
-                            "Impossible de trouver le jour correspondant à " .
-                            $date->format("d/m/Y") .
-                            " - " .
-                            self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1) .
-                            " : " .
-                            $e->getMessage()
-                        );
-                        return null;
+            // Sometimes year is in the cell value, sometimes not...
+            if (is_numeric($month)) {
+                $month = $matches[count($matches) - 2];
+                $day = $matches[count($matches) - 3];
+            }
+            // Just to be sure the day is in fact a day not some letters...
+            if (is_numeric($day)) {
+                $reverseMonths = array_flip($this->months);
+                if (array_key_exists($month, $reverseMonths)) {
+                    $monthOfLastDayOfWeek = $reverseMonths[$month];
+                    if ($monthOfLastDayOfWeek == 0 && $day < self::NUMBERS_OF_DAYS_IN_A_WEEK) {
+                        $this->currentYear++;
                     }
-                    $daysOfTheSheet[$i] = $date;
+                    $referenceDay =
+                        new \DateTime(
+                            $this->currentYear . '-' . ($monthOfLastDayOfWeek + 1) . '-' . $day
+                            , new \DateTimeZone('Europe/Paris')
+                        );
+                    for ($i = 0; $i < self::NUMBERS_OF_DAYS_IN_A_WEEK; $i++) {
+                        $date = clone $referenceDay;
+                        $toSubstract = self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1);
+                        try {
+                            $date->sub(new \DateInterval('P' . $toSubstract . 'D'));
+                        } catch (\Exception $e) {
+                            $this->loggingService->add(
+                                ILoggingService::ERROR,
+                                "Impossible de trouver le jour correspondant à " .
+                                $date->format("d/m/Y") .
+                                " - " .
+                                self::NUMBERS_OF_DAYS_IN_A_WEEK - ($i + 1) .
+                                " : " .
+                                $e->getMessage()
+                            );
+                            return null;
+                        }
+                        $daysOfTheSheet[$i] = $date;
+                    }
                 }
             }
         }
@@ -409,6 +439,10 @@ class ExcelInput implements IInputService
         $matches = explode(" ", $cellWeekValue);
         if (count($matches) > 2) {
             $month = $matches[count($matches) - 1];
+            // Sometimes year is in the cell value, sometimes not...
+            if (is_numeric($month)) {
+                $month = $matches[count($matches) - 2];
+            }
             $reverseMonths = array_flip($this->months);
             if (array_key_exists($month, $reverseMonths)) {
                 $monthOfLastDayOfWeek = $reverseMonths[$month];
@@ -461,7 +495,6 @@ class ExcelInput implements IInputService
                 throw new \Exception("'". $lastDateOfTheWeek . "' n'a pas le format attendu");
             }
         } catch (\Exception $e) {
-            echo "ERREUR";
             $this->loggingService->add(
                 ILoggingService::INFO,
                 "Impossible de trouver l'année de référence à partir de " .
@@ -483,5 +516,38 @@ class ExcelInput implements IInputService
         $name = filter_var($name, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
         $name = preg_replace("/[,]+/", "", $name);
         return $name;
+    }
+
+
+    /**
+     * @param string $str
+     * @param string $charset
+     * @return string
+     */
+    private function wd_remove_accents($str, $charset='utf-8')
+    {
+        $str = htmlentities($str, ENT_NOQUOTES, $charset);
+
+        $str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
+        $str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
+        $str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
+
+        return $str;
+    }
+
+    /**
+     * Return true is the cell is merged in this worksheet
+     * @param \PHPExcel_Cell $cell
+     * @return bool
+     */
+    private function isCellMerged(\PHPExcel_Cell $cell) {
+        $bool = false;
+        foreach ($this->listOfMergedCells as $cells) {
+            if ($cell->isInRange($cells)) {
+                $bool = true;
+                break;
+            }
+        }
+        return $bool;
     }
 }

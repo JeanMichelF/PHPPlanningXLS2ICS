@@ -17,11 +17,7 @@ use \JMF\PHPPlanningXLS2ICS\Service;
 use \JMF\PHPPlanningXLS2ICS\Data;
 
 //Class loader
-require_once __DIR__."/../../../../SplClassLoader.php";
-
-$loader = new \SplClassLoader('JMF', __DIR__.'/../../../../classes');
-$loader->register();
-
+require_once __DIR__ . '/../../../../classes/JMF/PHPPlanningXLS2ICS/Converter.php';
 
 /**
  * @namespace tests\
@@ -30,6 +26,8 @@ class ExcelInput extends atoum\test
 {
 
     public $testFile = '/../../../fixtures/test.xls';
+
+    public $testMergedFile = '/../../../fixtures/testMerged.xls';
 
     /**
      *
@@ -489,5 +487,137 @@ class ExcelInput extends atoum\test
         $this
             ->dateTime($firstFriday2014Olivier->finishingHour)
             ->hasDateAndTime('2014', '01', '03', '20', '00', '00');
+    }
+
+    /**
+     * @tags active
+     */
+    public function testMergedGetPersonnalPlannings() {
+        //création de l'objet à tester
+        $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
+
+        $excelInputTest->openFile(__DIR__ . $this->testMergedFile);
+
+        $dataLoaded = $excelInputTest->extractData();
+
+        $this
+            ->object($dataLoaded)
+            ->isInstanceOf('\JMF\PHPPlanningXLS2ICS\Data\Planning');
+
+        $this
+            ->integer(count($dataLoaded->listOfPersonnalPlanning))
+            ->isEqualTo(10);
+
+        $totalEntries = 0;
+        foreach ($dataLoaded->listOfPersonnalPlanning as $personnalPlanning) {
+            $totalEntries += count($personnalPlanning->listOfDayData);
+        }
+
+        $this
+            ->integer($totalEntries)
+            ->isEqualTo(92);
+
+        $planningOlivier = $dataLoaded->listOfPersonnalPlanning["Olivier"];
+        $mondayOlivier = $planningOlivier->listOfDayData[0];
+        $this
+            ->integer($mondayOlivier->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($mondayOlivier->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($mondayOlivier->isDetaches)
+            ->isFalse();
+        $this
+            ->boolean($mondayOlivier->isAllDayLong)
+            ->isFalse();
+        $this
+            ->string($mondayOlivier->specificDay)
+            ->isEmpty();
+        $this
+            ->dateTime($mondayOlivier->startingHour)
+            ->hasDateAndTime('2014', '02', '03', '13', '00', '00');
+        $this
+            ->dateTime($mondayOlivier->finishingHour)
+            ->hasDateAndTime('2014', '02', '03', '20', '00', '00');
+        $tuesdayOlivier1 = $planningOlivier->listOfDayData[1];
+        $this
+            ->integer($tuesdayOlivier1->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($tuesdayOlivier1->isAllDayLong)
+            ->isFalse();
+        $this
+            ->boolean($tuesdayOlivier1->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($tuesdayOlivier1->isHotelsHiver)
+            ->isTrue();
+        $this
+            ->boolean($tuesdayOlivier1->isDetaches)
+            ->isFalse();
+        $this
+            ->string($tuesdayOlivier1->specificDay)
+            ->isEmpty();
+        $this
+            ->dateTime($tuesdayOlivier1->startingHour)
+            ->hasDateAndTime('2014', '02', '04', '13', '00', '00');
+        $this
+            ->dateTime($tuesdayOlivier1->finishingHour)
+            ->hasDateAndTime('2014', '02', '04', '15', '00', '00');
+        $tuesdayOlivier2 = $planningOlivier->listOfDayData[7];
+        $this
+            ->integer($tuesdayOlivier2->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($tuesdayOlivier2->isAllDayLong)
+            ->isFalse();
+        $this
+            ->boolean($tuesdayOlivier2->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($tuesdayOlivier2->isHotelsHiver)
+            ->isFalse();
+        $this
+            ->boolean($tuesdayOlivier2->isDetaches)
+            ->isFalse();
+        $this
+            ->string($tuesdayOlivier2->specificDay)
+            ->isEmpty();
+        $this
+            ->dateTime($tuesdayOlivier2->startingHour)
+            ->hasDateAndTime('2014', '02', '04', '15', '00', '00');
+        $this
+            ->dateTime($tuesdayOlivier2->finishingHour)
+            ->hasDateAndTime('2014', '02', '04', '20', '00', '00');
+        $planningXavier = $dataLoaded->listOfPersonnalPlanning["Xavier"];
+        $mondayXavier1 = $planningXavier->listOfDayData[0];
+        $this
+            ->integer($mondayXavier1->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($mondayXavier1->isAllDayLong)
+            ->isFalse();
+        $this
+            ->boolean($mondayXavier1->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($mondayXavier1->isHotelsHiver)
+            ->isFalse();
+        $this
+            ->boolean($mondayXavier1->isDetaches)
+            ->isFalse();
+        $this
+            ->string($mondayXavier1->specificDay)
+            ->isEmpty();
+        $this
+            ->boolean($mondayXavier1->isProGDis)
+            ->isTrue();
+        $this
+            ->dateTime($mondayXavier1->startingHour)
+            ->hasDateAndTime('2014', '02', '03', '10', '30', '00');
+        $this
+            ->dateTime($mondayXavier1->finishingHour)
+            ->hasDateAndTime('2014', '02', '03', '16', '00', '00');
     }
 }
