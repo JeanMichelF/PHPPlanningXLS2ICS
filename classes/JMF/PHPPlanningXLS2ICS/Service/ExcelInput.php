@@ -36,6 +36,8 @@ class ExcelInput implements IInputService
     const MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID = 28;
     const COLOR_HOTELS = "FF0000";
     const COLOR_DETACHES = "B81A9A";
+    // Because one color for one thing is too mainstream
+    const COLOR_DETACHES2 = "D410C6";
     const COLOR_PROGDIS = "00B050";
     const COLOR_HOTELHIVER = "FFC000";
     const NON_WORKER_TEXT = "Référent";
@@ -345,7 +347,7 @@ class ExcelInput implements IInputService
         if (self::COLOR_HOTELS == $color) {
             $dayData->isHotels = true;
         }
-        if (self::COLOR_DETACHES == $color) {
+        if (self::COLOR_DETACHES == $color || self::COLOR_DETACHES2 == $color) {
             $dayData->isDetaches = true;
         }
         if (self::COLOR_PROGDIS == $color) {
