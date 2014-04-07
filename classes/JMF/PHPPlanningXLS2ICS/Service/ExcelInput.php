@@ -371,6 +371,8 @@ class ExcelInput implements IInputService
     private function getDaysOfWeek($cellWeekValue)
     {
         $daysOfTheSheet = array();
+        // Sometimes 2 spaces are too much : let's use only one
+        $cellWeekValue = preg_replace ("/\s+/", " ", $cellWeekValue);
         $matches = explode(" ", $cellWeekValue);
         if (count($matches) <= 2) {
             $matches = explode("_", $cellWeekValue);
