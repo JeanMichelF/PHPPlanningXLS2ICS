@@ -24,7 +24,7 @@ class ExcelInput implements IInputService
     const COLUMN_OF_NAMES = 0;
     // Due to merging cells, we have to put a great number here...
     // @todo handle this with X empty cells in a row ?
-    const MAX_NUMBER_OF_WORKERS = 40;
+    const MAX_NUMBER_OF_WORKERS = 35;
     const FIRST_ROW_OF_WORKER = 2;
     const FIRST_COLUMN_OF_DAYS = 1;
     const FIRST_ROW_OF_DAYS = 3;
@@ -368,6 +368,9 @@ class ExcelInput implements IInputService
     {
         $daysOfTheSheet = array();
         $matches = explode(" ", $cellWeekValue);
+        if (count($matches) <= 2) {
+            $matches = explode("_", $cellWeekValue);
+        }
         if (count($matches) > 2) {
             $month = $matches[count($matches) - 1];
             $day = $matches[count($matches) - 2];
