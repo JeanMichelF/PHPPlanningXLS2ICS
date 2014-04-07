@@ -304,6 +304,9 @@ class ExcelInput extends atoum\test
             ->boolean($nextTuesdayJulie->isDetaches)
             ->isFalse();
         $this
+            ->boolean($nextTuesdayJulie->isPlaquette)
+            ->isTrue();
+        $this
             ->string($nextTuesdayJulie->specificDay)
             ->isEmpty();
         $this

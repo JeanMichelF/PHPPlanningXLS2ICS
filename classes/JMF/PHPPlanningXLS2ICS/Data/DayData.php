@@ -28,6 +28,8 @@ class DayData
     public $isProGDis = false;
     /** @var bool */
     public $isHotelsHiver = false;
+    /** @var bool */
+    public $isPlaquette = false;
     /** @var string */
     public $specificDay = "";
 }

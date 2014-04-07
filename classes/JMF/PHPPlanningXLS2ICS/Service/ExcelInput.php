@@ -40,6 +40,7 @@ class ExcelInput implements IInputService
     const COLOR_DETACHES2 = "D40AC6";
     const COLOR_PROGDIS = "00B050";
     const COLOR_HOTELHIVER = "FFC000";
+    const COLOR_PLAQUETTE = "00B0F0";
     const NON_WORKER_TEXT = "Référent";
 
 
@@ -355,6 +356,9 @@ class ExcelInput implements IInputService
         }
         if (self::COLOR_HOTELHIVER == $color) {
             $dayData->isHotelsHiver = true;
+        }
+        if (self::COLOR_PLAQUETTE == $color) {
+            $dayData->isPlaquette = true;
         }
         $dayData->specificDay = "";
         return $dayData;

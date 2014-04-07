@@ -31,6 +31,7 @@ class ICSOutput implements IOutputService
     const EVENT_SUMMARY_DETACHES = " - DETACHES";
     const EVENT_SUMMARY_PROGDIS = " - PROGDIS";
     const EVENT_SUMMARY_HOTELSHIVER = " - HOTELS HIVER";
+    const EVENT_SUMMARY_PLAQUETTE = " - PLAQUETTE";
     const EVENT_DESCRIPTION_1 = "Travail";
     const EVENT_DESCRIPTION_2 = "R.T.T.";
     const EVENT_DESCRIPTION_3 = "C.P.";
@@ -39,8 +40,11 @@ class ICSOutput implements IOutputService
     const EVENT_DESCRIPTION_6 = "R.J.F.";
     const EVENT_DESCRIPTION_7 = "R.H.";
     const EVENT_DESCRIPTION_8 = "Jour Férié : pas de travail";
-    const EVENT_DESCRIPTION_HOTELS = " : attention, journée HOTELS";
-    const EVENT_DESCRIPTION_DETACHES = " : attention, journée DETACHES";
+    const EVENT_DESCRIPTION_HOTELS = " : attention, HOTELS";
+    const EVENT_DESCRIPTION_DETACHES = " : attention, DETACHES";
+    const EVENT_DESCRIPTION_PROGDIS = " : attention, PROGDIS";
+    const EVENT_DESCRIPTION_HOTELSHIVER = " : attention, HOTELS HIVER";
+    const EVENT_DESCRIPTION_PLAQUETTE = " : attention, PLAQUETTE";
 
     /** @var ILoggingService */
     private $loggingService;
@@ -148,7 +152,10 @@ class ICSOutput implements IOutputService
             $dayData->specificDay :
             constant('self::EVENT_DESCRIPTION_' . $dayData->typeOfDay)) .
             ($dayData->isHotels ? self::EVENT_DESCRIPTION_HOTELS : '') .
-            ($dayData->isDetaches ? self::EVENT_DESCRIPTION_DETACHES : '') . PHP_EOL .
+            ($dayData->isDetaches ? self::EVENT_DESCRIPTION_DETACHES : '') .
+            ($dayData->isProGDis ? self::EVENT_DESCRIPTION_PROGDIS : '') .
+            ($dayData->isHotelsHiver ? self::EVENT_DESCRIPTION_HOTELSHIVER : '') .
+            ($dayData->isPlaquette ? self::EVENT_DESCRIPTION_PLAQUETTE : '') . PHP_EOL .
         "LAST-MODIFIED;TZID=Europe/Paris:" . gmdate('Ymd').'T'. gmdate('His') . PHP_EOL .
         "LOCATION:" . PHP_EOL .
         "SEQUENCE:0" . PHP_EOL .
@@ -159,7 +166,8 @@ class ICSOutput implements IOutputService
             ($dayData->isHotels ? self::EVENT_SUMMARY_HOTELS : '') .
             ($dayData->isDetaches ? self::EVENT_SUMMARY_DETACHES : '') .
             ($dayData->isProGDis ? self::EVENT_SUMMARY_PROGDIS : '') .
-            ($dayData->isHotelsHiver ? self::EVENT_SUMMARY_HOTELSHIVER : '') .PHP_EOL .
+            ($dayData->isHotelsHiver ? self::EVENT_SUMMARY_HOTELSHIVER : '') .
+            ($dayData->isPlaquette ? self::EVENT_SUMMARY_PLAQUETTE : '') . PHP_EOL .
         "TRANSP:" . $eventTransp . PHP_EOL .
         "END:VEVENT" . PHP_EOL;
 
