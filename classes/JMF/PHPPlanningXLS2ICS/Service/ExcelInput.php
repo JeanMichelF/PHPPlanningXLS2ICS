@@ -328,8 +328,8 @@ class ExcelInput implements IInputService
             if (substr($finishTime, strlen($finishTime)-1) != "0") {
                 $finishTime .= "00";
             }
-            $dayData->startingHour = $start->add(new \DateInterval('PT' . $startTime . 'M'));
-            $dayData->finishingHour = $end->add(new \DateInterval('PT' . $finishTime . 'M'));
+            $dayData->startingHour = $start->add(new \DateInterval('PT' . trim($startTime) . 'M'));
+            $dayData->finishingHour = $end->add(new \DateInterval('PT' . trim($finishTime) . 'M'));
         } catch (\Exception $e) {
             $this->loggingService->add(
                 ILoggingService::WARNING,
