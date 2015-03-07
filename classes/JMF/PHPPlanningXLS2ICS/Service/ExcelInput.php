@@ -16,7 +16,7 @@ use \JMF\PHPPlanningXLS2ICS\Data\DayData;
 use \JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay;
 
 /** Include PHPExcel */
-require_once __DIR__."/../../../../lib/PHPExcel/Classes/PHPExcel.php";
+require_once __DIR__ . "/../../../../lib/PHPExcel/Classes/PHPExcel.php";
 
 class ExcelInput implements IInputService
 {
@@ -88,11 +88,12 @@ class ExcelInput implements IInputService
      * @throws \PHPExcel_Reader_Exception
      * @throws \Exception
      */
-    public function openFile($path = "") {
+    public function openFile($path = "")
+    {
         if (is_null($this->objPHPExcel)) {
             try {
                 $this->objPHPExcel = PHPExcel_IOFactory::load($path);
-            } catch(\PHPExcel_Reader_Exception $e) {
+            } catch (\PHPExcel_Reader_Exception $e) {
                 $this->loggingService->add(
                     ILoggingService::ERROR,
                     "Impossible d'ouvrir le fichier " . $path . " : " . $e->getMessage()
@@ -107,7 +108,8 @@ class ExcelInput implements IInputService
     /**
      * @return mixed|void
      */
-    public function closeFile() {
+    public function closeFile()
+    {
         $this->objPHPExcel = null;
     }
 
@@ -127,7 +129,7 @@ class ExcelInput implements IInputService
         $data = new Planning();
 
         /** @var \PHPExcel_Worksheet $sheet */
-        foreach($this->objPHPExcel->getAllSheets() as $sheet) {
+        foreach ($this->objPHPExcel->getAllSheets() as $sheet) {
             $sheetTitleValue = strtoupper(ServiceHelper::wd_remove_accents(trim($sheet->getTitle())));
             // Initialization of the current year (maybe not BASE_YEAR ?)
             if (null == $this->currentYear) {
@@ -164,7 +166,11 @@ class ExcelInput implements IInputService
                     if (!$this->isCellMerged($cell) || ($this->isCellMerged($cell) && !empty($tmpCellValue))) {
                         $cellNameValue = $tmpCellValue;
                     }
-                    if (!empty($cellNameValue) && ($cellNameValue != $sheetTitleValue) && strpos($cellNameValue, self::NON_WORKER_TEXT) === false) {
+                    if (!empty($cellNameValue)
+                        && ($cellNameValue != $sheetTitleValue)
+                        && strpos($cellNameValue, self::NON_WORKER_TEXT) === false
+                        && preg_match('/^[a-zA-Z0-9]+$/', $this->sanitizeName($cellNameValue))
+                    ) {
                         $personnalPlanning = new PersonnalPlanning();
                         $personnalPlanning->name = $this->sanitizeName($cellNameValue);
                         $personnalPlanning->listOfDayData = $this->extractDaysOfSheetData(
@@ -246,12 +252,12 @@ class ExcelInput implements IInputService
                 $matches = explode("-", $dayValue);
                 if (count($matches) > 1 && strlen($dayValue) > 1) {
                     if (strpos($matches[0], ' ')) {
-                        $startTime = strtoupper(substr($matches[0],0,strpos($matches[0], ' ')));
+                        $startTime = strtoupper(substr($matches[0], 0, strpos($matches[0], ' ')));
                     } else {
                         $startTime = strtoupper($matches[0]);
                     }
                     if (strpos($matches[1], ' ')) {
-                        $finishTime = strtoupper(substr($matches[1],0,strpos($matches[1], ' ')));
+                        $finishTime = strtoupper(substr($matches[1], 0, strpos($matches[1], ' ')));
                     } else {
                         $finishTime = strtoupper($matches[1]);
                     }
@@ -323,10 +329,10 @@ class ExcelInput implements IInputService
         $end = clone $day;
         try {
             // Si l'heure renseignée n'a pas de minutes, il faut les ajouter...
-            if (substr($startTime, strlen($startTime)-1) != "0") {
+            if (substr($startTime, strlen($startTime) - 1) != "0") {
                 $startTime .= "00";
             }
-            if (substr($finishTime, strlen($finishTime)-1) != "0") {
+            if (substr($finishTime, strlen($finishTime) - 1) != "0") {
                 $finishTime .= "00";
             }
             $dayData->startingHour = $start->add(new \DateInterval('PT' . trim($startTime) . 'M'));
@@ -372,7 +378,7 @@ class ExcelInput implements IInputService
     {
         $daysOfTheSheet = array();
         // Sometimes 2 spaces are too much : let's use only one
-        $cellWeekValue = preg_replace ("/\s+/", " ", $cellWeekValue);
+        $cellWeekValue = preg_replace("/\s+/", " ", $cellWeekValue);
         $matches = explode(" ", $cellWeekValue);
         if (count($matches) <= 2) {
             $matches = explode("_", $cellWeekValue);
@@ -489,7 +495,7 @@ class ExcelInput implements IInputService
                     $i++;
                 } while (
                     (strcasecmp($dayNameReference, $days[$dayNumber]) !== 0)
-                        &&
+                    &&
                     ($i < self::MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID)
                 );
                 // Good ! We've got the year of the last day of the week.
@@ -504,7 +510,7 @@ class ExcelInput implements IInputService
                 // And... we're done !
                 $this->currentYear = $date->format('Y');
             } else {
-                throw new \Exception("'". $lastDateOfTheWeek . "' n'a pas le format attendu");
+                throw new \Exception("'" . $lastDateOfTheWeek . "' n'a pas le format attendu");
             }
         } catch (\Exception $e) {
             $this->loggingService->add(
@@ -524,7 +530,8 @@ class ExcelInput implements IInputService
      * @param $name string
      * @return string
      */
-    private function sanitizeName($name) {
+    private function sanitizeName($name)
+    {
         $name = filter_var($name, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
         $name = preg_replace("/[,]+/", "", $name);
         return $name;
@@ -535,7 +542,8 @@ class ExcelInput implements IInputService
      * @param \PHPExcel_Cell $cell
      * @return bool
      */
-    private function isCellMerged(\PHPExcel_Cell $cell) {
+    private function isCellMerged(\PHPExcel_Cell $cell)
+    {
         $bool = false;
         foreach ($this->listOfMergedCells as $cells) {
             if ($cell->isInRange($cells)) {
