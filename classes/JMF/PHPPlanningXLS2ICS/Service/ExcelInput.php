@@ -223,8 +223,9 @@ class ExcelInput implements IInputService
      * @param $name     string      Only for logging purpose
      * @return \JMF\PHPPlanningXLS2ICS\Data\DayData
      */
-    private function handleDayType($dayValue, $color, $day, $name)
+    public function handleDayType($dayValue, $color, $day, $name)
     {
+        $dayData = null;
         switch ($dayValue) {
             case "RH":
                 $dayData = $this->setNotWorkingDay(TypeOfDay::RH, $day);
@@ -251,17 +252,29 @@ class ExcelInput implements IInputService
             default:
                 $matches = explode("-", $dayValue);
                 if (count($matches) > 1 && strlen($dayValue) > 1) {
-                    if (strpos($matches[0], ' ')) {
-                        $startTime = strtoupper(substr($matches[0], 0, strpos($matches[0], ' ')));
-                    } else {
-                        $startTime = strtoupper($matches[0]);
+                    // Well, it appears that we can have here  13h00 14h00 on $matches[1], let's handle it
+                    foreach ($matches as $match) {
+                        if ((mb_substr_count($match,'h') + mb_substr_count($match,'H')) == 2) {
+                            // There could be a line feed or a space in the cell to separate 2 hours on this cell
+                            $matchWithoutLineFeed = trim(preg_replace('/\s+/', ' ', $match));
+                            $matchesDouble = explode(" ", $matchWithoutLineFeed);
+                            $matches = $this->replaceInArrayAnItemByAnArray($matches, $match, $matchesDouble);
+                        }
                     }
-                    if (strpos($matches[1], ' ')) {
-                        $finishTime = strtoupper(substr($matches[1], 0, strpos($matches[1], ' ')));
-                    } else {
-                        $finishTime = strtoupper($matches[1]);
+                    // Add a working day for all $matches
+                    for ($i = 0; $i < sizeof($matches) ; $i+=2) {
+                        if (strpos($matches[$i], ' ')) {
+                            $startTime = strtoupper(substr($matches[$i], 0, strpos($matches[$i], ' ')));
+                        } else {
+                            $startTime = strtoupper($matches[$i]);
+                        }
+                        if (strpos($matches[$i+1], ' ')) {
+                            $finishTime = strtoupper(substr($matches[$i+1], 0, strpos($matches[$i+1], ' ')));
+                        } else {
+                            $finishTime = strtoupper($matches[$i+1]);
+                        }
+                        $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color, $name);
                     }
-                    $dayData = $this->setWorkingDay($day, $startTime, $finishTime, $color, $name);
                 } else {
                     if (!empty($dayValue)) {
                         $dayData = $this->setSpecificDay(TypeOfDay::SPECIFIC_DAY, $day, $dayValue);
@@ -552,5 +565,24 @@ class ExcelInput implements IInputService
             }
         }
         return $bool;
+    }
+
+    /**
+     * Replace the item $match in the array $matches by the array $matchesDouble
+     * @param $matches
+     * @param $match
+     * @param $matchesDouble
+     * @return array
+     */
+    public function replaceInArrayAnItemByAnArray($matches, $match, $matchesDouble)
+    {
+        $newMatches = array();
+        // Copy until the item to delete
+        $newMatches = array_merge($newMatches, array_slice($matches, 0, array_search($match, $matches)));
+        // Add the new array
+        $newMatches = array_merge($newMatches, ($matchesDouble));
+        // Copy after the item to delete
+        $newMatches = array_merge($newMatches, array_slice($matches, array_search($match, $matches) + 1));
+        return $newMatches;
     }
 }

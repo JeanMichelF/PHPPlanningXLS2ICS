@@ -623,4 +623,22 @@ class ExcelInput extends atoum\test
             ->dateTime($mondayXavier1->finishingHour)
             ->hasDateAndTime('2014', '02', '03', '16', '00', '00');
     }
+
+    /**
+     *
+     */
+    public function testDoubleDateInOneCell() {
+        //$simpleDate = "13H00-20H00";
+        //$doubleDate = "9h00 - 13h00 14H00-17h30";
+        //$tripleDate = "9h00 - 13h00 14H00-17h30 18h-23h";
+        //création de l'objet à tester
+        //$excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
+        //$excelInputTest->handleDayType($simpleDate,"#000000",new \DateTime(), "Test");
+        //$excelInputTest->handleDayType($doubleDate,"#000000",new \DateTime(), "Test");
+        //$excelInputTest->handleDayType($tripleDate,"#000000",new \DateTime(), "Test");
+        $this
+            ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog())
+            ->contains("warning")
+            ->contains("Impossible d'ouvrir le fichier");
+    }
 }
