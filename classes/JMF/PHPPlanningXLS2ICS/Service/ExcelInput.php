@@ -169,7 +169,7 @@ class ExcelInput implements IInputService
                     if (!empty($cellNameValue)
                         && ($cellNameValue != $sheetTitleValue)
                         && strpos($cellNameValue, self::NON_WORKER_TEXT) === false
-                        && preg_match('/^[a-zA-Z0-9]+$/', $this->sanitizeName($cellNameValue))
+                        && preg_match('/^[a-zA-Z0-9]+$/', ServiceHelper::wd_remove_accents($this->sanitizeName($cellNameValue)))
                     ) {
                         $personnalPlanning = new PersonnalPlanning();
                         $personnalPlanning->name = $this->sanitizeName($cellNameValue);
