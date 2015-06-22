@@ -67,6 +67,8 @@ class ExcelInput implements IInputService
         "DECEMBRE"
     );
 
+    private $days = array('dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi');
+
     /** @var  Array of merged cells */
     private $listOfMergedCells;
 
@@ -133,11 +135,17 @@ class ExcelInput implements IInputService
             $sheetTitleValue = strtoupper(ServiceHelper::wd_remove_accents(trim($sheet->getTitle())));
             // Initialization of the current year (maybe not BASE_YEAR ?)
             if (null == $this->currentYear) {
-                $firstDayCell = $sheet->getCellByColumnAndRow(
-                    self::COLUMN_OF_NAMES + self::NUMBERS_OF_DAYS_IN_A_WEEK,
-                    self::FIRST_ROW_OF_WORKER + 1
-                );
-                $firstDayCellValue = trim($firstDayCell->getValue());
+                $i = 1;
+                do {
+                    $firstDayCell = $sheet->getCellByColumnAndRow(
+                        self::COLUMN_OF_NAMES + self::NUMBERS_OF_DAYS_IN_A_WEEK,
+                        self::FIRST_ROW_OF_WORKER + $i
+                    );
+                    $firstDayCellValue = trim($firstDayCell->getValue());
+                    $i++;
+                    $matches = explode(" ", $firstDayCellValue);
+                    $dayName = $matches[0];
+                } while (!in_array(strtolower($dayName), $this->days) && $i < self::FIRST_ROW_OF_WORKER + self::MAX_NUMBER_OF_WORKERS);
                 $monthOfTheLastDayOfTheFirstWeek = $this->getMonthOfTheLastDayOfWeek($sheetTitleValue);
                 if (null == $monthOfTheLastDayOfTheFirstWeek) {
                     $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
@@ -149,6 +157,12 @@ class ExcelInput implements IInputService
             $daysOfTheSheet = $this->getDaysOfWeek($sheetTitleValue);
             if (empty($daysOfTheSheet)) {
                 $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK, self::ROW_OF_WEEK);
+                $cellWeekValue = strtoupper(ServiceHelper::wd_remove_accents(trim($cell->getValue())));
+                $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
+            }
+            // Sometimes we have to look just right after the cell we have targeted first...
+            if (empty($daysOfTheSheet)) {
+                $cell = $sheet->getCellByColumnAndRow(self::COLUMN_OF_WEEK+1, self::ROW_OF_WEEK);
                 $cellWeekValue = strtoupper(ServiceHelper::wd_remove_accents(trim($cell->getValue())));
                 $daysOfTheSheet = $this->getDaysOfWeek($cellWeekValue);
             }
@@ -491,7 +505,6 @@ class ExcelInput implements IInputService
      */
     private function setCurrentYear($lastDateOfTheWeek, $monthOfTheLastDayOfTheFirstWeek)
     {
-        $days = array('dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi');
         try {
             $matches = explode(" ", trim($lastDateOfTheWeek));
             if (count($matches) == 2) {
@@ -507,7 +520,7 @@ class ExcelInput implements IInputService
                     $dayNumber = $testedDate->format("w");
                     $i++;
                 } while (
-                    (strcasecmp($dayNameReference, $days[$dayNumber]) !== 0)
+                    (strcasecmp($dayNameReference, $this->days[$dayNumber]) !== 0)
                     &&
                     ($i < self::MAX_YEARS_BEFORE_USING_THE_SAME_CALENDAR_IS_VALID)
                 );

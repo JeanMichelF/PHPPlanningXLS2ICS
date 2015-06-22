@@ -29,6 +29,7 @@ class ExcelInput extends atoum\test
 
     public $testMergedFile = '/../../../fixtures/testMerged.xls';
 
+    public $newTestFile = '/../../../fixtures/Plannings07-12_2015.xlsx';
     /**
      *
      */
@@ -640,5 +641,68 @@ class ExcelInput extends atoum\test
             ->string(\JMF\PHPPlanningXLS2ICS\Service\ArrayLogging::getInstance()->displayLog())
             ->contains("warning")
             ->contains("Impossible d'ouvrir le fichier");
+    }
+
+    /**
+     * @tags active
+     */
+    public function testGetPersonnalPlanningsNewFile() {
+        //création de l'objet à tester
+        $excelInputTest = new \JMF\PHPPlanningXLS2ICS\Service\ExcelInput();
+
+        $excelInputTest->openFile(__DIR__ . $this->newTestFile);
+
+        $dataLoaded = $excelInputTest->extractData();
+
+        $this
+            ->object($dataLoaded)
+            ->isInstanceOf('\JMF\PHPPlanningXLS2ICS\Data\Planning');
+
+
+        $planningCeline = $dataLoaded->listOfPersonnalPlanning["Céline"];
+        $mondayCeline = $planningCeline->listOfDayData[0];
+        $this
+            ->integer($mondayCeline->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::RH);
+        $this
+            ->boolean($mondayCeline->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($mondayCeline->isDetaches)
+            ->isFalse();
+        $this
+            ->boolean($mondayCeline->isAllDayLong)
+            ->isTrue();
+        $this
+            ->string($mondayCeline->specificDay)
+            ->isEmpty();
+        $this
+            ->dateTime($mondayCeline->startingHour)
+            ->hasDateAndTime('2015', '06', '29', '00', '00', '00');
+        $this
+            ->dateTime($mondayCeline->finishingHour)
+            ->hasDateAndTime('2015', '06', '29', '00', '00', '00');
+        $sundayCeline = $planningCeline->listOfDayData[sizeof($planningCeline->listOfDayData)-1];
+        $this
+            ->integer($sundayCeline->typeOfDay)
+            ->isEqualTo(\JMF\PHPPlanningXLS2ICS\Constant\TypeOfDay::WORK);
+        $this
+            ->boolean($sundayCeline->isAllDayLong)
+            ->isFalse();
+        $this
+            ->boolean($sundayCeline->isHotels)
+            ->isFalse();
+        $this
+            ->boolean($sundayCeline->isDetaches)
+            ->isFalse();
+        $this
+            ->string($sundayCeline->specificDay)
+            ->isEmpty();
+        $this
+            ->dateTime($sundayCeline->startingHour)
+            ->hasDateAndTime('2016', '01', '03', '15', '30', '00');
+        $this
+            ->dateTime($sundayCeline->finishingHour)
+            ->hasDateAndTime('2016', '01', '03', '23', '00', '00');
     }
 }
