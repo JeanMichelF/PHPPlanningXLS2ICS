@@ -418,6 +418,16 @@ class ExcelInput implements IInputService
                 $month = $matches[count($matches) - 2];
                 $day = $matches[count($matches) - 3];
             }
+            // Little hacky fix...
+            if (strtolower($day) == "1er") {
+                $day = "1";
+            }
+            if (strtolower($day) == "2eme") {
+                $day = "2";
+            }
+            if (strtolower($day) == "3eme") {
+                $day = "3";
+            }
             // Just to be sure the day is in fact a day not some letters...
             if (is_numeric($day)) {
                 $reverseMonths = array_flip($this->months);
